@@ -10,11 +10,9 @@ const PUBLIC_DIR = path.join(__dirname, "public");
 // Configuração forçada para ignorar erros de TLS/SSL que o Atlas possa estar rejeitando
 const client = new MongoClient(process.env.MONGO_URI, {
     serverSelectionTimeoutMS: 20000,
-    tls: true,
+    // Remova o 'tls: true' daqui, deixe o driver decidir a conexão baseada na URI
     tlsAllowInvalidCertificates: true,
-    tlsAllowInvalidHostnames: true,
-    connectTimeoutMS: 20000,
-    socketTimeoutMS: 20000
+    tlsAllowInvalidHostnames: true
 });
 
 let db;
