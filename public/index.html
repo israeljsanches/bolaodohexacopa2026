@@ -606,18 +606,31 @@
     }
 
     async function abrirCanhotoHistorico(index) {
-        const apostadores = await (await fetch('/api/visitas')).json();
-        const tabela = document.getElementById("tabelaApostadores");
-        const cpfClicado = tabela.querySelectorAll("tr")[index].cells[1].textContent;
-        const ap = apostadores.find(a => a.cpf === cpfClicado);
-        if(ap) {
-            globalTextoCanhoto = ap.canhoto;
-            document.getElementById('areaRecibo').style.display = "block";
-            document.getElementById('canhotoTexto').textContent = ap.canhoto;
-            document.getElementById('areaRecibo').scrollIntoView({ behavior: 'smooth' });
-        }
+    const apostadores = await (await fetch('/api/visitas')).json();
+    const tabela = document.getElementById("tabelaApostadores");
+    const cpfClicado = tabela.querySelectorAll("tr")[index].cells[1].textContent;
+    const ap = apostadores.find(a => a.cpf === cpfClicado);
+    
+    if(ap) {
+        globalTextoCanhoto = ap.canhoto;
+        document.getElementById('areaRecibo').style.display = "block";
+        document.getElementById('canhotoTexto').textContent = ap.canhoto;
+        
+        // REINSERÇÃO DO BOTÃO DE EXCLUIR
+        const btnExcluir = document.createElement("button");
+        btnExcluir.className = "btn-danger";
+        btnExcluir.textContent = "? Excluir Canhoto";
+        btnExcluir.onclick = () => excluirAposta(ap.cpf);
+        
+        // Limpa botões antigos antes de adicionar o novo para não duplicar
+        const container = document.getElementById('canhotoTexto');
+        container.appendChild(document.createElement("br"));
+        container.appendChild(document.createElement("br"));
+        container.appendChild(btnExcluir);
+        
+        document.getElementById('areaRecibo').scrollIntoView({ behavior: 'smooth' });
     }
-
+}
     async function limparListaProtegida() {
         if (prompt("Senha do Administrador:") === SENHA_ADMIN && confirm("Limpar tudo?")) {
             await fetch('/api/visitas', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify([]) });
