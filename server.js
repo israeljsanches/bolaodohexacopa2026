@@ -7,11 +7,14 @@ const { MongoClient } = require("mongodb");
 const PORT = process.env.PORT || 3000;
 const PUBLIC_DIR = path.join(__dirname, "public");
 
-// Configuração ajustada para contornar erros de SSL/TLS no ambiente de nuvem
+// Configuração forçada para ignorar erros de TLS/SSL que o Atlas possa estar rejeitando
 const client = new MongoClient(process.env.MONGO_URI, {
+    serverSelectionTimeoutMS: 20000,
     tls: true,
     tlsAllowInvalidCertificates: true,
-    serverSelectionTimeoutMS: 15000
+    tlsAllowInvalidHostnames: true,
+    connectTimeoutMS: 20000,
+    socketTimeoutMS: 20000
 });
 
 let db;
