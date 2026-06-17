@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bolão do Hexa — Copa do Mundo 2026</title>
+    <style>
+        :root {
+            --primary-color: #0f5132;
+            --primary-light: #198754;
+            --secondary-color: #ffc107;
+            --secondary-dark: #ff9800;
+            --background-color: #f1f5f4;
+            --card-background: #ffffff;
+            --text-color: #212529;
+            --text-muted: #6c757d;
+            --border-color: #dee2e6;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: var(--background-color); color: var(--text-color); line-height: 1.6; padding: 15px; }
+        .container { max-width: 950px; margin: 0 auto; }
+        
+        header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, #062417 100%);
+            color: white; padding: 35px 20px; border-radius: 16px; text-align: center; box-shadow: 0 10px 20px rgba(0,0,0,0.1); margin-bottom: 25px; position: relative;
+        }
+        header::relative { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 6px; background: linear-gradient(90deg, var(--secondary-color), var(--secondary-dark)); border-radius: 0 0 16px 16px; }
+        header h1 { font-size: 28px; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1.5px; text-shadow: 0 2px 4px rgba(0,0,0,0.3); }
+        header p { font-size: 15px; color: #e2e8f0; opacity: 0.9; }
+
+        .rules-box { background-color: #fff3cd; border-left: 5px solid var(--secondary-dark); color: #664d03; padding: 18px; border-radius: 8px; margin-bottom: 25px; font-size: 13.5px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+        .rules-box ul { margin-left: 20px; margin-top: 6px; }
+        .rules-box li { margin-bottom: 4px; }
+
+        .pix-box {
+            background: linear-gradient(135deg, #e6fffa 0%, #b2f5ea 100%); border: 1px solid #319795; color: #234e52; padding: 18px; border-radius: 12px; margin-bottom: 25px; font-size: 14.5px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.02); display: flex; flex-direction: column; gap: 8px;
+        }
+        .pix-row { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+        .pix-key { font-family: monospace; font-weight: bold; background: #fff; padding: 4px 10px; border-radius: 6px; border: 1px solid #4fd1c5; font-size: 15px; }
+        .btn-copy-pix { background: #319795; color: white; border: none; padding: 5px 12px; font-size: 12px; font-weight: bold; border-radius: 6px; cursor: pointer; transition: background 0.2s; }
+        .btn-copy-pix:hover { background: #234e52; }
+
+        .form-group { margin-bottom: 18px; }
+        label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 14px; color: #495057; }
+        input[type="text"], select { width: 100%; padding: 12px 16px; border: 1px solid var(--border-color); border-radius: 10px; font-size: 15px; transition: all 0.2s; background-color: #f8f9fa; }
+        input[type="text"]:focus, select:focus { outline: none; border-color: var(--primary-light); background-color: #fff; box-shadow: 0 0 0 3px rgba(25, 135, 84, 0.15); }
+
+        .tabs { 
+            display: flex; gap: 8px; margin-bottom: 25px; overflow-x: auto; padding-bottom: 8px; 
+            border-bottom: 2px solid var(--border-color); scrollbar-width: none; -ms-overflow-style: none; 
+        }
+        .tabs::-webkit-scrollbar { display: none; }
+        
+        .tab-btn {
+            background-color: #e9ecef; color: #495057; border: none; padding: 10px 20px; font-size: 13.5px;
+            font-weight: bold; border-radius: 30px; cursor: pointer; white-space: nowrap; transition: all 0.2s;
+        }
+        .tab-btn.active { background-color: var(--primary-color); color: white; box-shadow: 0 4px 10px rgba(15, 81, 50, 0.25); }
+
+        .card { background: var(--card-background); padding: 24px; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.04); margin-bottom: 25px; border: 1px solid rgba(0,0,0,0.02); }
+        .section-title { font-size: 18px; color: var(--primary-color); margin-bottom: 20px; border-left: 4px solid var(--secondary-dark); padding-left: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+
+        .date-divider {
+            background: #e9ecef; color: #343a40; padding: 8px 16px; font-weight: 700; font-size: 12.5px;
+            border-radius: 8px; margin: 25px 0 15px 0; text-transform: uppercase; border-left: 4px solid var(--primary-color);
+            display: flex; align-items: center; gap: 6px;
+        }
+
+        .day-content { display: none; }
+        .day-content.active { display: block; }
+
+        /* Estrutura de Grid Travada em 3 colunas para manter o alinhamento de futebol no celular */
+        .match-card {
+            display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; background: #ffffff;
+            padding: 16px 12px; border: 1px solid var(--border-color); border-radius: 12px; margin-bottom: 14px; text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.01); transition: all 0.2s;
+        }
+        .match-card:hover { border-color: #bcd0c7; }
+        
+        /* Controle fino do texto para não quebrar feio em telas muito estreitas */
+        .team { font-weight: 700; font-size: 14px; color: #212529; word-break: break-word; padding: 0 4px; }
+        .team.left-align { text-align: right; }
+        .team.right-align { text-align: left; }
+        .team input[type="text"] { width: 100%; padding: 8px; font-size: 13px; text-align: center; border: 1px dashed #ced4da; border-radius: 8px; background: #f8f9fa; font-weight: 600; }
+        
+        .score-inputs { display: flex; align-items: center; justify-content: center; gap: 6px; }
+        .score-input, .score-input-B { 
+            width: 46px; height: 42px; text-align: center; font-size: 18px; font-weight: 800; 
+            border: 2px solid #ced4da; border-radius: 8px; background: #ffffff; color: var(--primary-color); transition: all 0.2s;
+            -moz-appearance: textfield;
+        }
+        .score-input::-webkit-outer-spin-button, .score-input::-webkit-inner-spin-button,
+        .score-input-B::-webkit-outer-spin-button, .score-input-B::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        
+        .vs { font-weight: 800; color: #6c757d; font-size: 11px; background: #e9ecef; padding: 3px 6px; border-radius: 4px; min-width: 24px; display: inline-block; }
+        .match-info { grid-column: 1 / span 3; font-size: 11px; color: var(--text-muted); margin-bottom: 12px; text-align: left; border-bottom: 1px dashed #e9ecef; padding-bottom: 6px; font-weight: 600; display: flex; justify-content: space-between; }
+
+        .search-container { margin-bottom: 15px; }
+        .search-input { width: 100%; padding: 10px 15px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 14px; background-color: #ffffff; }
+
+        .btn {
+            display: block; width: 100%; background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%); color: white; border: none; padding: 16px;
+            font-size: 16px; font-weight: bold; border-radius: 10px; cursor: pointer; transition: all 0.2s; text-transform: uppercase; margin-top: 20px; box-shadow: 0 4px 6px rgba(15, 81, 50, 0.15);
+        }
+        .btn:hover { filter: brightness(1.1); }
+        
+        .receipt-area {
+            background: #fffde6; border: 2px dashed var(--secondary-dark); padding: 20px; margin-top: 25px; border-radius: 10px;
+            font-family: 'Courier New', Courier, monospace; white-space: pre-wrap; font-size: 13px; color: #1a202c; overflow-x: auto;
+        }
+
+        .action-buttons { display: flex; gap: 10px; margin-top: 15px; flex-wrap: wrap; }
+        .btn-secondary { background: #4a5568; width: calc(50% - 5px); }
+        .btn-secondary:hover { background: #2d3748; }
+        .btn-danger { background: #dc3545; width: 100%; margin-top: 5px; }
+
+        .podium-box {
+            background: linear-gradient(135deg, #fff3cd 0%, #ffeeba 100%); border: 1px solid #ffeeba; padding: 18px; border-radius: 12px; margin-bottom: 25px;
+            text-align: center; font-size: 16px; font-weight: bold; color: #856404; display: flex; align-items: center; justify-content: center; gap: 10px;
+        }
+
+        .table-responsive { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; margin-top: 10px; border-radius: 10px; border: 1px solid var(--border-color); }
+        .gambler-table { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 650px; background: #fff; }
+        .gambler-table th, .gambler-table td { padding: 14px 18px; text-align: left; border-bottom: 1px solid var(--border-color); }
+        .gambler-table th { background-color: #f8f9fa; color: var(--primary-color); font-weight: 700; }
+        .clickable-row { cursor: pointer; }
+        .clickable-row:hover { background-color: #f1f9f5; }
+        
+        .clear-btn { background: #e2e8f0; color: #4a5568; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 12px; float: right; font-weight: bold; margin-left: 5px; }
+
+        /* Pequenos ajustes para telas super compactas (celulares menores) */
+        @media (max-width: 480px) {
+            body { padding: 8px; }
+            .card { padding: 14px 10px; border-radius: 12px; }
+            .match-card { padding: 12px 6px; }
+            .team { font-size: 12.5px; }
+            .score-input, .score-input-B { width: 40px; height: 38px; font-size: 16px; }
+            .vs { font-size: 10px; padding: 2px 4px; min-width: 18px; }
+            .btn-secondary { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>🏆 Bolão do Hexa — Copa de 2026</h1>
+        <p>Inscrição: R$ 10,00 por Rodada | Clique no nome para resgatar e auditar o canhoto!</p>
+    </header>
+
+    <div class="rules-box">
+    <strong>🔒 Regras por Rodada & Pontuação:</strong>
+    <ul>
+        <li><strong>Valor:</strong> R$ 10,00 por rodada.</li>
+        <li><strong>Placar Exato:</strong> 5 pontos.</li>
+        <li><strong>Apenas Vitória / Empate (errando o placar):</strong> 2 pontos.</li>
+        <li><strong>Gabarito Eletrônico:</strong> Após o lançamento dos resultados pelo administrador, o ranking é atualizado automaticamente.</li>
+    </ul>
+</div>
+
+    <div class="pix-box">
+        <div class="pix-row">
+            <span>💸 **Pagamento da Inscrição (R$ 10,00 por Rodada):** Realize o Pix para validar os seus palpites!</span>
+        </div>
+        <div class="pix-row">
+            <div>🔑 Chave E-mail: <span id="chavePixTexto" class="pix-key">israeljsanches@gmail.com</span></div>
+            <button class="pix-row btn-copy-pix" onclick="copiarChavePixManual()">📋 Copiar Chave PIX</button>
+        </div>
+        <div style="font-size: 13.5px; margin-top: 2px;">👤 Favorecido: **Israel de Jesus Sanches Ferreira**</div>
+    </div>
+
+    <div id="podiumContainer" style="display: none;" class="podium-box">
+        👑 LÍDER ATUAL DA RODADA: <span id="vencedorNome" style="margin: 0 4px; text-decoration: underline;">---</span> (<span id="vencedorPontos">0</span> pts)
+    </div>
+
+    <div class="card" id="cardIdentificacao">
+        <h2 class="section-title">1. Identificação do Apostador</h2>
+        <div class="form-group">
+            <label for="nome">Nome Completo</label>
+            <input type="text" id="nome" placeholder="Ex: Michael Jackson Uooll" required>
+        </div>
+        <div class="form-group">
+            <label for="cpf">CPF</label>
+            <input type="text" id="cpf" placeholder="000.000.000-00" maxlength="14" oninput="mascaraCPF(this)" required>
+        </div>
+    </div>
+
+    <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab('r1')">Rodada 1 (24 Jogos)</button>
+        <button class="tab-btn" onclick="switchTab('r2')">Rodada 2 (24 Jogos)</button>
+        <button class="tab-btn" onclick="switchTab('r3')">Rodada 3 (24 Jogos)</button>
+        <button class="tab-btn" onclick="switchTab('m16')">16-avos</button>
+        <button class="tab-btn" onclick="switchTab('moitavas')">Oitavas</button>
+        <button class="tab-btn" onclick="switchTab('mquartas')">Quartas</button>
+        <button class="tab-btn" onclick="switchTab('mfinal')">Semi e Final</button>
+    </div>
+
+    <form id="bolaoForm">
+        <div class="card">
+            <h2 class="section-title">2. Seus Palpites de Placar</h2>
+
+            <div id="r1" class="day-content active">
+                <div class="date-divider">📅 Quinta-feira, 11 de Junho</div>
+                <div class="match-card" data-match-id="r1_1">
+                    <div class="match-info"><span>16h00 — Grupo A</span><span>Cidade do México</span></div>
+                    <div class="team left-align">México</div>
+                    <div class="score-inputs"><input type="number" class="score-input" data-teamA="México" data-teamB="África do Sul" min="0"><span class="vs">X</span><input type="number" class="score-input-B" min="0"></div>
+                    <div class="team right-align">África do Sul</div>
+                </div>
+                <div class="match-card" data-match-id="r1_2">
+                    <div class="match-info"><span>23h00 — Grupo A</span><span>Guadalajara</span></div>
+                    <div class="team left-align">Coreia do Sul</div>
+                    <div class="score-inputs"><input type="number" class="score-input" data-teamA="Coreia do Sul" data-teamB="República Tcheca" min="0"><span class="vs">X</span><input type="number" class="score-input-B" min="0"></div>
+                    <div class="team right-align">República Tcheca</div>
+                </div>
+
+                <div class="date-divider">📅 Sexta-feira, 12 de Junho</div>
+                <div class="match-card" data-match-id="r1_3">
+                    <div class="match-info"><span>16h00 — Grupo B</span><span>Toronto</span></div>
+                    <div class="team left-align">Canadá</div>
+                    <div class="score-inputs"><input type="number" class="score-input" data-teamA="Canadá" data-teamB="Bósnia" min="0"><span class="vs">X</span><input type="number" class="score-input-B" min="0"></div>
+                    <div class="team right-align">Bósnia e Herz.</div>
+                </div>
+                <div class="match-card" data-match-id="r1_4">
+                    <div class="match-info"><span>22h00 — Grupo D</span><span>Los Angeles</span></div>
+                    <div class="team left-align">Estados Unidos</div>
+                    <div class="score-inputs"><input type="number" class="score-input" data-teamA="Estados Unidos" data-teamB="Paraguai" min="0"><span class="vs">X</span><input type="number" class="score-input-B" min="0"></div>
+                    <div class="team right-align">Paraguai</div>
+                </div>
+
+                <div class="date-divider">📅 Sábado, 13 de Junho</div>
+                <div class="match-card" data-match-id="r1_5">
+                    <div class="match-info"><span>16h00 — Grupo B</span><span>São Francisco</span></div>
+                    <div class="team left-align">Catar</div>
+                    <div class="score-inputs"><input type="number" class="score-input" data-teamA="Catar" data-teamB="Suíça" min="0"><span class="vs">X</span><input type="number" class="score-input-B" min="0"></div>
+                    <div class="team right-align">Suíça</div>
+                </div>
+                <div class="match-card" data-match-id="r1_6">
+                    <div class="match-info"><span>19h00 — Grupo C</span><span>Nova York ⭐ BRASIL</span></div>
+                    <div class="team left-align">Brasil</div>
+                    <div class="score-inputs"><input type="number" class="score-input" data-teamA="Brasil" data-teamB="Marrocos" min="0"><span class="vs">X</span><input type="number" class="score-input-B" min="0"></div>
+                    <div class="team right-align">Marrocos</div>
+                </div>
+                <div class="match-card" data-match-id="r1_7">
+                    <div class="match-info"><span>22h00 — Grupo C</span><span>Boston</span></div>
+                    <div class="team left-align">Haiti</div>
+                    <div class="score-inputs"><input type="number" class="score-input" data-teamA="Haiti" data-teamB="Escócia" min="0"><span class="vs">X</span><input type="number" class="score-input-B" min="0"></div>
+                    <div class="team right-align">Escócia</div>
+                </div>
+
+                <div class="date-divider">📅 Domingo, 14 de Junho</div>
+                <div class="match-card" data-match-id="r1_8"><div class="match-info"><span>01h00 — Grupo D</span><span>Vancouver</span></div><div class="team left-align">Austrália</div><div class="score-inputs"><input type="number" class="score-input" data-teamA="Austrália" data-teamB="Turquia" min="0"><span class="vs">X</span><input type="number" class="score-input-B" min="0"></div><div class="team right-align">Turquia</div></div>
+                <div class="match-card" data-match-id="r1_9"><div class="match-info"><span>14h00 — Grupo E</span><span>Houston</span></div><div class="team left-align">Alemanha</div><div class="score-inputs"><input type="number" class="score-input" data-teamA="Alemanha" data-teamB="Curaçao" min="0"><span class="vs">X</span><input type="number" class="score-input-B" min="0"></div><div class="team right-align">Curaçao</div></div>
+                <div class="match-card" data-match-id="r1_10"><div class="match-info"><span>17h00 — Grupo F</span><span>Dallas</span></div><div class="team left-align">Holanda</div><div class="score-inputs"><input type="number" class="score-input" data-teamA="Holanda" data-teamB="Japão" min="0"><span class="vs">X</span><input type="number" class="score-input-B" min="0"></div><div class="team right-align">Japão</div></div>
+                <div class="match-card" data-match-id="r1_11"><div class="match-info"><span>20h00 — Grupo E</span><span>Filadélfia</span></div><div class="team left-align">Costa do Marfim</div><div class="score-inputs"><input type="number" class="score-input" data-teamA="Costa do Marfim" data-teamB="Equador" min="0"><span class="vs">X</span><input type="number" class="score-input-B" min="0"></div><div class="team right-align">Equador</div></div>
+                <div class="match-card" data-match-id="r1_12"><div class="match-info"><span>23h00 — Grupo F</span><span>Monterrey</span></div><div class="team left-align">Suécia</div><div class="score-inputs"><input type="number" class="score-input" data-teamA="Suécia" data-teamB="Tunísia" min="0"><span class="vs">X</span><input type="number" class="score-input-B" min="0"></div><div class="team right-align">Tunísia</div></div>
+
+                <div class="date-divider">📅 Segunda-feira, 15 de Junho</div>
+                <div class="match-card" data-match-id="r1_13"><div class="match-info"><span>13h00 — Grupo H</span><span>Atlanta</span></div><div class="team left-align">Espanha</div><div class="score-inputs"><input type="number" class="score-input" data-teamA="Espanha" data-teamB="Cabo Verde" min="0"><span class="vs">X</span><input type="number" class="score-input-B" min="0"></div><div class="team right-align">Cabo Verde</div></div>
+                <div class="match-card" data-match-id="r1_14"><div class="match-info"><span>16h00 — Grupo G</span><span>Seattle</span></div><div class="team left-align">Bélgica</div><div class="score-inputs"><input type="number" class="score-input" data-teamA="Bélgica" data-teamB="Egito" min="0"><span class="vs">X</span><input type="number" class="score-input-B" min="0"></div><div class="team right-align">Egito</div></div>
+                <div class="match-card" data-match-id="r1_15"><div class="match-info"><span>19h00 — Grupo H</span><span>Miami</span></div><div class="team left-align">Arábia Saudita</div><div class="score-inputs"><input type="number" class="score-input" data-teamA="Arábia Saudita" data-teamB="Uruguai" min="0"><span class="vs">X</span><input type="number" class="score-input-B" min="0"></div><div class="team right-align">Uruguai</div></div>
+                <div class="match-card" data-match-id="r1_16"><div class="match-info"><span>22h00 — Grupo G</span><span>Los Angeles</span></div><div class="team left-align">Irã</div><div class="score-inputs"><input type="number" class="score-input" data-teamA="Irã" data-teamB="Nova Zelândia" min="0"><span class="vs">X</span><input type="number" class="score-input-B" min="0"></div><div class="team right-align">Nova Zelândia</div></div>
+
+                <div class="date-divider">📅 Terça-feira, 16 de Junho</div>
+                <div class="match-card" data-match-id="r1_17"><div class="match-info"><span>16h00 — Grupo I</span><span>Nova York</span></div><div class="team left-align">França</div><div class="score-inputs"><input type="number" class="score-input" data-teamA="França" data-teamB="Senegal" min="0"><span class="vs">X</span><input type="number" class="score-input-B" min="0"></div><div class="team right-align">Senegal</div></div>
+                <div class="match-card" data-match-id="r1_18"><div class="match-info"><span>19h00 — Grupo I</span><span>Boston</span></div><div class="team left-align">Iraque</div><div class="score-inputs"><input type="number" class="score-input" data-teamA="Iraque" data-teamB="Noruega" min="0"><span class="vs">X</span><input type="number" class="score-input-B" min="0"></div><div class="team right-align">Noruega</div></div>
+                <div class="match-card" data-match-id="r1_19"><div class="match-info"><span>22h00 — Grupo J</span><span>Kansas City</span></div><div class="team left-align">Argentina</div><div class="score-inputs"><input type="number" class="score-input" data-teamA="Argentina" data-teamB="Argélia" min="0"><span class="vs">X</span><input type="number" class="score-input-B" min="0"></div><div class="team right-align">Argélia</div></div>
+
+                <div class="date-divider">📅 Quarta-feira, 17 de Junho</div>
+                <div class="match-card" data-match-id="r1_20"><div class="match-info"><span>01h00 — Grupo J</span><span>São Francisco</span></div><div class="team left-align">Áustria</div><div class="score-inputs"><input type="number" class="score-input" data-teamA="Áustria" data-teamB="Jordânia" min="0"><span class="vs">X</span><input type="number" class="score-input-B" min="0"></div><div class="team right-align">Jordânia</div></div>
+                <div class="match-card" data-match-id="r1_21"><div class="match-info"><span>14h00 — Grupo K</span><span>Houston</span></div><div class="team left-align">Portugal</div><div class="score-inputs"><input type="number" class="score-input" data-teamA="Portugal" data-teamB="RD do Congo" min="0"><span class="vs">X</span><input type="number" class="score-input-B" min="0"></div><div class="team right-align">RD do Congo</div></div>
+                <div class="match-card" data-match-id="r1_22"><div class="match-info"><span>17h00 — Grupo L</span><span>Dallas</span></div><div class="team left-align">Inglaterra</div><div class="score-inputs"><input type="number" class="score-input" data-teamA="Inglaterra" data-teamB="Croácia" min="0"><span class="vs">X</span><input type="number" class="score-input-B" min="0"></div><div class="team right-align">Croácia</div></div>
+                <div class="match-card" data-match-id="r1_23"><div class="match-info"><span>20h00 — Grupo L</span><span>Toronto</span></div><div class="team left-align">Gana</div><div class="score-inputs"><input type="number" class="score-input" data-teamA="Gana" data-teamB="Panamá" min="0"><span class="vs">X</span><input type="number" class="score-input-B" min="0"></div><div class="team right-align">Panamá</div></div>
+                <div class="match-card" data-match-id="r1_24"><div class="match-info"><span>23h00 — Grupo K</span><span>Cidade do México</span></div><div class="team left-align">Uzbequistão</div><div class="score-inputs"><input type="number" class="score-input" data-teamA="Uzbequistão" data-teamB="Colômbia" min="0"><span class="vs">X</span><input type="number" class="score-input-B" min="0"></div><div class="team right-align">Colômbia</div></div>
+            </div>
+
+            <div id="r2" class="day-content">
+                <div class="date-divider">📅 Quinta-feira, 18 de Junho</div>
+                <div class="match-card" data-match-id="r2_1"><div class="match-info"><span>13h00 — Grupo A</span><span>Atlanta</span></div><div class="team left-align">Rep. Tcheca</div><div class="score-inputs"><input type="number" class="score-input" data-teamA="Rep. Tcheca" data-teamB="África do Sul" min="0"><span class="vs">X</span><input type="number" class="score-input-B" min="0"></div><div class="team right-align">África do Sul</div></div>
+                <div class="match-card" data-match-id="r2_2"><div class="match-info"><span>16h00 — Grupo B</span><span>Los Angeles</span></div><div class="team left-align">Suíça</div><div class="score-inputs"><input type="number" class="score-input" data-teamA="Suíça" data-teamB="Bósnia" min="0"><span class="vs">X</span><input type="number" class="score-input-B" min="0"></div><div class="team right-align">Bósnia</div></div>
+                <div class="match-card" data-match-id="r2_3"><div class="match-info"><span>19h00 — Grupo B</span><span>Vancouver</span></div><div class="team left-align">Canadá</div><div class="score-inputs"><input type="number" class="score-input" data-teamA="Canadá" data-teamB="Catar" min="0"><span class="vs">X</span><input type="number" class="score-input-B" min="0"></div><div class="team right-align">Catar</div></div>
+                <div class="match-card" data-match-id="r2_4"><div class="match-info"><span>22h00 — Grupo A</span><span>Guadalajara</span></div><div class="team left-align">México</div><div class="score-inputs"><input type="number" class="score-input" data-teamA="México" data-teamB="Coreia do Sul" min="0"><span class="vs">X</span><input type="number" class="score-input-B" min="0"></div><div class="team right-align">Coreia do Sul</div></div>
+
+                <div class="date-divider">📅 Sexta-feira, 19 de Junho</div>
+                <div class="match-card" data-match-id="r2_5"><div class="match-info"><span>16h00 — Grupo D</span><span>Seattle</span></div><div class="team left-align">Estados Unidos</div><div class="score-inputs"><input type="number" class="score-input" data-teamA="Estados Unidos" data-teamB="Austrália" min="0"><span class="vs">X</span><input type="number" class="score-input-B" min="0"></div><div class="team right-align">Austrália</div></div>
+                <div class="match-card" data-match-id="r2_6"><div class="match-info"><span>19h00 — Grupo C</span><span>Boston</span></div><div class="team left-align">Escócia</div><div class="score-inputs"><input type="number" class="score-input" data-teamA="Escócia" data-teamB="Marrocos" min="0"><span class="vs">X</span><input type="number" class="score-input-B" min="0"></div><div class="team right-align">Marrocos</div></div>
+                <div class="match-card" data-match-id="r2_7"><div class="match-info"><span>21h30 — Grupo C ⭐ BRASIL x Haiti</span><span>Filadélfia</span></div><div class="team left-align">Brasil</div><div class="score-inputs"><input type="number" class="score-input" data-teamA="Brasil" data-teamB="Haiti" min="0"><span class="vs">X</span><input type="number" class="score-input-B" min="0"></div><div class="team right-align">Haiti</div></div>
+
+                <div class="date-divider">📅 Sábado, 20 de Junho</div>
+                <div class="match-card" data-match-id="r2_8"><div class="match-info"><span>00h00 — Grupo D</span><span>São Francisco</span></div><div class="team left-align">Turquia</div><div class="score-inputs"><input type="number" class="score-input" data-teamA="Turquia" data-teamB="Paraguai" min="0"><span class="vs">X</span><input type="number" class="score-input-B" min="0"></div><div class="team right-align">Paraguai</div></div>
+                <div class="match-card" data-match-id="r2_9"><div class="match-info"><span>14h00 — Grupo F</span><span>Houston</span></div><div class="team left-align">Holanda</div><div class="score-inputs"><input type="number" class="score-input" data-teamA="Holanda" data-teamB="Suécia" min="0"><span class="vs">X</span><input type="number" class="score-input-B" min="0"></div><div class="team right-align">Suécia</div></div>
+                <div class="match-card" data-match-id="r2_10"><div class="match-info"><span>17h00 — Grupo E</span><span>Toronto</span></div><div class="team left-align">Alemanha</div><div class="score-inputs"><input type="number" class="score-input" data-teamA="Alemanha" data-teamB="Costa do Marfim" min="0"><span class="vs">X</span><input type="number" class="score-input-B" min="0"></div><div class="team right-align">Costa do Marfim</div></div>
+                <div class="match-card" data-match-id="r2_11"><div class="match-info"><span>21h00 — Grupo E</span><span>Kansas City</span></div><div class="team left-align">Equador</div><div class="score-inputs"><input type="number" class="score-input" data-teamA="Equador" data-teamB="Curaçao" min="0"><span class="vs">X</span><input type="number" class="score-input-B" min="0"></div><div class="team right-align">Curaçao</div></div>
+
+                <div class="date-divider">📅 Domingo, 21 de Junho</div>
+                <div class="match-card" data-match-id="r2_12"><div class="match-info"><span>01h00 — Grupo F</span><span>Monterrey</span></div><div class="team left-align">Tunísia</div><div class="score-inputs"><input type="number" class="score-input" data-teamA="Tunísia" data-teamB="Japão" min="0"><span class="vs">X</span><input type="number" class="score-input-B" min="0"></div><div class="team right-align">Japão</div></div>
+                <div class="match-card" data-match-id="r2_13"><div class="match-info"><span>13h00 — Grupo H</span><span>Atlanta</span></div><div class="team left-align">Espanha</div><div class="score-inputs"><input type="number" class="score-input" data-teamA="Espanha" data-teamB="Arábia Saudita" min="0"><span class="vs">X</span><input type="number" class="score-input-B" min="0"></div><div class="team right-align">Arábia Saudita</div></div>
+                <div class="match-card" data-match-id="r2_14"><div class="match-info"><span>16h00 — Grupo G</span><span>Los Angeles</span></div><div class="team left-align">Bélgica</div><div class="score-inputs"><input type="number" class="score-input" data-teamA="Bélgica" data-teamB="Irã" min="0"><span class="vs">X</span><input type="number" class="score-input-B" min="0"></div><div class="team right-align">Irã</div></div>
+                <div class="match-card" data-match-id="r2_15"><div class="match-info"><span>19h00 — Grupo H</span><span>Miami</span></div><div class="team left-align">Uruguai</div><div class="score-inputs"><input type="number" class="score-input" data-teamA="Uruguai" data-teamB="Cabo Verde" min="0"><span class="vs">X</span><input type="number" class="score-input-B" min="0"></div><div class="team right-align">Cabo Verde</div></div>
+                <div class="match-card" data-match-id="r2_16"><div class="match-info"><span>22h00 — Grupo G</span><span>Vancouver</span></div><div class="team left-align">Nova Zelândia</div><div class="score-inputs"><input type="number" class="score-input" data-teamA="Nova Zelândia" data-teamB="Egito" min="0"><span class="vs">X</span><input type="number" class="score-input-B" min="0"></div><div class="team right-align">Egito</div></div>
+
+                <div class="date-divider">📅 Segunda-feira, 22 de Junho</div>
+                <div class="match-card" data-match-id="r2_17"><div class="match-info"><span>14h00 — Grupo J</span><span>Dallas</span></div><div class="team left-align">Argentina</div><div class="score-inputs"><input type="number" class="score-input" data-teamA="Argentina" data-teamB="Áustria" min="0"><span class="vs">X</span><input type="number" class="score-input-B" min="0"></div><div class="team right-align">Áustria</div></div>
+                <div class="match-card" data-match-id="r2_18"><div class="match-info"><span>18h00 — Grupo I</span><span>Filadélfia</span></div><div class="team left-align">França</div><div class="score-inputs"><input type="number" class="score-input" data-teamA="França" data-teamB="Iraque" min="0"><span class="vs">X</span><input type="number" class="score-input-B" min="0"></div><div class="team right-align">Iraque</div></div>
+                <div class="match-card" data-match-id="r2_19"><div class="match-info"><span>21h00 — Grupo I</span><span>Nova York</span></div><div class="team left-align">Noruega</div><div class="score-inputs"><input type="number" class="score-input" data-teamA="Noruega" data-teamB="Senegal" min="0"><span class="vs">X</span><input type="number" class="score-input-B" min="0"></div><div class="team right-align">Senegal</div></div>
+
+                <div class="date-divider">📅 Terça-feira, 23 de Junho</div>
+                <div class="match-card" data-match-id="r2_20"><div class="match-info"><span>00h00 — Grupo J</span><span>São Francisco</span></div><div class="team left-align">Jordânia</div><div class="score-inputs"><input type="number" class="score-input" data-teamA="Jordânia" data-teamB="Argélia" min="0"><span class="vs">X</span><input type="number" class="score-input-B" min="0"></div><div class="team right-align">Argélia</div></div>
+                <div class="match-card" data-match-id="r2_21"><div class="match-info"><span>14h00 — Grupo K</span><span>Houston</span></div><div class="team left-align">Portugal</div><div class="score-inputs"><input type="number" class="score-input" data-teamA="Portugal" data-teamB="Uzbequistão" min="0"><span class="vs">X</span><input type="number" class="score-input-B" min="0"></div><div class="team right-align">Uzbequistão</div></div>
+                <div class="match-card" data-match-id="r2_22"><div class="match-info"><span>17h00 — Grupo L</span><span>Boston</span></div><div class="team left-align">Inglaterra</div><div class="score-inputs"><input type="number" class="score-input" data-teamA="Inglaterra" data-teamB="Gana" min="0"><span class="vs">X</span><input type="number" class="score-input-B" min="0"></div><div class="team right-align">Gana</div></div>
+                <div class="match-card" data-match-id="r2_23"><div class="match-info"><span>20h00 — Grupo L</span><span>Toronto</span></div><div class="team left-align">Panamá</div><div class="score-inputs"><input type="number" class="score-input" data-teamA="Panamá" data-teamB="Croácia" min="0"><span class="vs">X</span><input type="number" class="score-input-B" min="0"></div><div class="team right-align">Croácia</div></div>
+                <div class="match-card" data-match-id="r2_24"><div class="match-info"><span>23h00 — Grupo K</span><span>Guadalajara</span></div><div class="team left-align">Colômbia</div><div class="score-inputs"><input type="number" class="score-input" data-teamA="Colômbia" data-teamB="RD do Congo" min="0"><span class="vs">X</span><input type="number" class="score-input-B" min="0"></div><div class="team right-align">RD do Congo</div></div>
+            </div>
+
+            <div id="r3" class="day-content">
+                <div class="date-divider">📅 Quarta-feira, 24 de Junho</div>
+                <div class="match-card" data-match-id="r3_1"><div class="match-info"><span>16h00 — Grupo B</span><span>Vancouver</span></div><div class="team left-align">Suíça</div><div class="score-inputs"><input type="number" class="score-input" data-teamA="Suíça" data-teamB="Canadá" min="0"><span class="vs">X</span><input type="number" class="score-input-B" min="0"></div><div class="team right-align">Canadá</div></div>
+                <div class="match-card" data-match-id="r3_2"><div class="match-info"><span>16h00 — Grupo B</span><span>Seattle</span></div><div class="team left-align">Bósnia</div><div class="score-inputs"><input type="number" class="score-input" data-teamA="Bósnia" data-teamB="Catar" min="0"><span class="vs">X</span><input type="number" class="score-input-B" min="0"></div><div class="team right-align">Catar</div></div>
+                <div class="match-card" data-match-id="r3_3"><div class="match-info"><span>19h00 — Grupo C ⭐</span><span>Miami</span></div><div class="team left-align">Escócia</div><div class="score-inputs"><input type="number" class="score-input" data-teamA="Escócia" data-teamB="Brasil" min="0"><span class="vs">X</span><input type="number" class="score-input-B" min="0"></div><div class="team right-align">Brasil</div></div>
+                <div class="match-card" data-match-id="r3_4"><div class="match-info"><span>19h00 — Grupo C</span><span>Atlanta</span></div><div class="team left-align">Marrocos</div><div class="score-inputs"><input type="number" class="score-input" data-teamA="Marrocos" data-teamB="Haiti" min="0"><span class="vs">X</span><input type="number" class="score-input-B" min="0"></div><div class="team right-align">Haiti</div></div>
+                <div class="match-card" data-match-id="r3_5"><div class="match-info"><span>22h00 — Grupo A</span><span>Cidade do México</span></div><div class="team left-align">Rep. Tcheca</div><div class="score-inputs"><input type="number" class="score-input" data-teamA="Rep. Tcheca" data-teamB="México" min="0"><span class="vs">X</span><input type="number" class="score-input-B" min="0"></div><div class="team right-align">México</div></div>
+                <div class="match-card" data-match-id="r3_6"><div class="match-info"><span>22h00 — Grupo A</span><span>Monterrey</span></div><div class="team left-align">África do Sul</div><div class="score-inputs"><input type="number" class="score-input" data-teamA="África do Sul" data-teamB="Coreia do Sul" min="0"><span class="vs">X</span><input type="number" class="score-input-B" min="0"></div><div class="team right-align">Coreia do Sul</div></div>
+
+                <div class="date-divider">📅 Quinta-feira, 25 de Junho</div>
+                <div class="match-card" data-match-id="r3_7"><div class="match-info"><span>17h00 — Grupo E</span><span>Filadélfia</span></div><div class="team left-align">Curaçao</div><div class="score-inputs"><input type="number" class="score-input" data-teamA="Curaçao" data-teamB="Costa do Marfim" min="0"><span class="vs">X</span><input type="number" class="score-input-B" min="0"></div><div class="team right-align">Costa do Marfim</div></div>
+                <div class="match-card" data-match-id="r3_8"><div class="match-info"><span>17h00 — Grupo E</span><span>Nova York</span></div><div class="team left-align">Equador</div><div class="score-inputs"><input type="number" class="score-input" data-teamA="Equador" data-teamB="Alemanha" min="0"><span class="vs">X</span><input type="number" class="score-input-B" min="0"></div><div class="team right-align">Alemanha</div></div>
+                <div class="match-card" data-match-id="r3_9"><div class="match-info"><span>20h00 — Grupo F</span><span>Dallas</span></div><div class="team left-align">Japão</div><div class="score-inputs"><input type="number" class="score-input" data-teamA="Japão" data-teamB="Suécia" min="0"><span class="vs">X</span><input type="number" class="score-input-B" min="0"></div><div class="team right-align">Suécia</div></div>
+                <div class="match-card" data-match-id="r3_10"><div class="match-info"><span>20h00 — Grupo F</span><span>Kansas City</span></div><div class="team left-align">Tunísia</div><div class="score-inputs"><input type="number" class="score-input" data-teamA="Tunísia" data-teamB="Holanda" min="0"><span class="vs">X</span><input type="number" class="score-input-B" min="0"></div><div class="team right-align">Holanda</div></div>
+                <div class="match-card" data-match-id="r3_11"><div class="match-info"><span>23h00 — Grupo D</span><span>Los Angeles</span></div><div class="team left-align">Turquia</div><div class="score-inputs"><input type="number" class="score-input" data-teamA="Turquia" data-teamB="Estados Unidos" min="0"><span class="vs">X</span><input type="number" class="score-input-B" min="0"></div><div class="team right-align">Estados Unidos</div></div>
+                <div class="match-card" data-match-id="r3_12"><div class="match-info"><span>23h00 — Grupo D</span><span>São Francisco</span></div><div class="team left-align">Paraguai</div><div class="score-inputs"><input type="number" class="score-input" data-teamA="Paraguai" data-teamB="Austrália" min="0"><span class="vs">X</span><input type="number" class="score-input-B" min="0"></div><div class="team right-align">Austrália</div></div>
+
+                <div class="date-divider">📅 Sexta-feira, 26 de Junho</div>
+                <div class="match-card" data-match-id="r3_13"><div class="match-info"><span>16h00 — Grupo I</span><span>Boston</span></div><div class="team left-align">Noruega</div><div class="score-inputs"><input type="number" class="score-input" data-teamA="Noruega" data-teamB="França" min="0"><span class="vs">X</span><input type="number" class="score-input-B" min="0"></div><div class="team right-align">França</div></div>
+                <div class="match-card" data-match-id="r3_14"><div class="match-info"><span>16h00 — Grupo I</span><span>Toronto</span></div><div class="team left-align">Senegal</div><div class="score-inputs"><input type="number" class="score-input" data-teamA="Senegal" data-teamB="Iraque" min="0"><span class="vs">X</span><input type="number" class="score-input-B" min="0"></div><div class="team right-align">Iraque</div></div>
+                <div class="match-card" data-match-id="r3_15"><div class="match-info"><span>21h00 — Grupo H</span><span>Houston</span></div><div class="team left-align">Cabo Verde</div><div class="score-inputs"><input type="number" class="score-input" data-teamA="Cabo Verde" data-teamB="Arábia Saudita" min="0"><span class="vs">X</span><input type="number" class="score-input-B" min="0"></div><div class="team right-align">Arábia Saudita</div></div>
+                <div class="match-card" data-match-id="r3_16"><div class="match-info"><span>21h00 — Grupo H</span><span>Guadalajara</span></div><div class="team left-align">Uruguai</div><div class="score-inputs"><input type="number" class="score-input" data-teamA="Uruguai" data-teamB="Espanha" min="0"><span class="vs">X</span><input type="number" class="score-input-B" min="0"></div><div class="team right-align">Espanha</div></div>
+
+                <div class="date-divider">📅 Sábado, 27 de Junho</div>
+                <div class="match-card" data-match-id="r3_17"><div class="match-info"><span>00h00 — Grupo G</span><span>Seattle</span></div><div class="team left-align">Egito</div><div class="score-inputs"><input type="number" class="score-input" data-teamA="Egito" data-teamB="Irã" min="0"><span class="vs">X</span><input type="number" class="score-input-B" min="0"></div><div class="team right-align">Irã</div></div>
+                <div class="match-card" data-match-id="r3_18"><div class="match-info"><span>00h00 — Grupo G</span><span>Vancouver</span></div><div class="team left-align">Nova Zelândia</div><div class="score-inputs"><input type="number" class="score-input" data-teamA="Nova Zelândia" data-teamB="Bélgica" min="0"><span class="vs">X</span><input type="number" class="score-input-B" min="0"></div><div class="team right-align">Bélgica</div></div>
+                <div class="match-card" data-match-id="r3_19"><div class="match-info"><span>18h00 — Grupo L</span><span>Nova York</span></div><div class="team left-align">Panamá</div><div class="score-inputs"><input type="number" class="score-input" data-teamA="Panamá" data-teamB="Inglaterra" min="0"><span class="vs">X</span><input type="number" class="score-input-B" min="0"></div><div class="team right-align">Inglaterra</div></div>
+                <div class="match-card" data-match-id="r3_20"><div class="match-info"><span>18h00 — Grupo L</span><span>Filadélfia</span></div><div class="team left-align">Croácia</div><div class="score-inputs"><input type="number" class="score-input" data-teamA="Croácia" data-teamB="Gana" min="0"><span class="vs">X</span><input type="number" class="score-input-B" min="0"></div><div class="team right-align">Gana</div></div>
+                <div class="match-card" data-match-id="r3_21"><div class="match-info"><span>20h30 — Grupo K</span><span>Miami</span></div><div class="team left-align">Colômbia</div><div class="score-inputs"><input type="number" class="score-input" data-teamA="Colômbia" data-teamB="Portugal" min="0"><span class="vs">X</span><input type="number" class="score-input-B" min="0"></div><div class="team right-align">Portugal</div></div>
+                <div class="match-card" data-match-id="r3_22"><div class="match-info"><span>20h30 — Grupo K</span><span>Atlanta</span></div><div class="team left-align">RD do Congo</div><div class="score-inputs"><input type="number" class="score-input" data-teamA="RD do Congo" data-teamB="Uzbequistão" min="0"><span class="vs">X</span><input type="number" class="score-input-B" min="0"></div><div class="team right-align">Uzbequistão</div></div>
+                <div class="match-card" data-match-id="r3_23"><div class="match-info"><span>23h00 — Grupo J</span><span>Kansas City</span></div><div class="team left-align">Argélia</div><div class="score-inputs"><input type="number" class="score-input" data-teamA="Argélia" data-teamB="Áustria" min="0"><span class="vs">X</span><input type="number" class="score-input-B" min="0"></div><div class="team right-align">Áustria</div></div>
+                <div class="match-card" data-match-id="r3_24"><div class="match-info"><span>23h00 — Grupo J</span><span>Dallas</span></div><div class="team left-align">Jordânia</div><div class="score-inputs"><input type="number" class="score-input" data-teamA="Jordânia" data-teamB="Argentina" min="0"><span class="vs">X</span><input type="number" class="score-input-B" min="0"></div><div class="team right-align">Argentina</div></div>
+            </div>
+
+            <div id="m16" class="day-content">
+                <div class="match-card" data-match-id="m16_1">
+                    <div class="match-info"><span>16-avos — Jogo 73</span><span>Los Angeles</span></div>
+                    <div class="team"><input type="text" placeholder="2º Grupo A" data-custom-team="true"></div>
+                    <div class="score-inputs"><input type="number" class="score-input" min="0"><span class="vs">X</span><input type="number" class="score-input-B" min="0"></div>
+                    <div class="team"><input type="text" placeholder="2º Grupo B" data-custom-team-B="true"></div>
+                </div>
+                <div class="match-card" data-match-id="m16_2">
+                    <div class="match-info"><span>16-avos — Jogo 76</span><span>Houston</span></div>
+                    <div class="team"><input type="text" placeholder="1º Grupo C" data-custom-team="true"></div>
+                    <div class="score-inputs"><input type="number" class="score-input" min="0"><span class="vs">X</span><input type="number" class="score-input-B" min="0"></div>
+                    <div class="team"><input type="text" placeholder="2º Grupo F" data-custom-team-B="true"></div>
+                </div>
+            </div>
+
+            <div id="moitavas" class="day-content">
+                <div class="match-card" data-match-id="moit_1">
+                    <div class="match-info"><span>Oitavas de Final</span><span>Jogo 89</span></div>
+                    <div class="team"><input type="text" placeholder="Vencedor J74" data-custom-team="true"></div>
+                    <div class="score-inputs"><input type="number" class="score-input" min="0"><span class="vs">X</span><input type="number" class="score-input-B" min="0"></div>
+                    <div class="team"><input type="text" placeholder="Vencedor J77" data-custom-team-B="true"></div>
+                </div>
+            </div>
+
+            <div id="mquartas" class="day-content">
+                <div class="match-card" data-match-id="mqua_1">
+                    <div class="match-info"><span>Quartas de Final</span><span>Jogo 97 (Boston)</span></div>
+                    <div class="team"><input type="text" placeholder="Vencedor J89" data-custom-team="true"></div>
+                    <div class="score-inputs"><input type="number" class="score-input" min="0"><span class="vs">X</span><input type="number" class="score-input-B" min="0"></div>
+                    <div class="team"><input type="text" placeholder="Vencedor J90" data-custom-team-B="true"></div>
+                </div>
+            </div>
+
+            <div id="mfinal" class="day-content">
+                <div class="match-card" data-match-id="mfin_1">
+                    <div class="match-info"><span>Grande Final</span><span>MetLife Stadium 🏆</span></div>
+                    <div class="team"><input type="text" placeholder="Finalista 1" data-custom-team="true"></div>
+                    <div class="score-inputs"><input type="number" class="score-input" min="0"><span class="vs">X</span><input type="number" class="score-input-B" min="0"></div>
+                    <div class="team"><input type="text" placeholder="Finalista 2" data-custom-team-B="true"></div>
+                </div>
+            </div>
+
+            <button type="submit" class="btn">Emitir e Gravar Canhoto (R$ 10,00)</button>
+        </div>
+    </form>
+
+    <div id="areaRecibo" class="card" style="display:none; margin-top: 20px;">
+        <h3 id="tituloCanhotoDinamico" style="color: var(--secondary-dark); margin-bottom: 10px;">💾 Visualizando Canhoto Ativo</h3>
+        <div id="canhotoTexto" class="receipt-area" style="display:block;"></div>
+        <div class="action-buttons">
+            <button class="btn btn-secondary" onclick="copyReceiptText()">📋 Copiar Texto</button>
+            <button class="btn" style="margin-top:0; width:50%;" onclick="baixarCanhotoArquivo()">💾 Baixar .TXT</button>
+            <button class="btn btn-danger" onclick="limparTelaCanhoto()">❌ Fechar Janela de Canhoto</button>
+        </div>
+    </div>
+
+    <div class="card">
+        <button class="clear-btn" onclick="limparListaProtegida()">Zerar Registros (🔒 ADM)</button>
+        <button class="clear-btn" style="background:var(--primary-color); color:white;" onclick="lancarGabaritoOficial()">Lançar Resultados Reais (🔒 ADM)</button>
+        <h2 class="section-title">👥 Ranking de Classificação e Apostadores</h2>
+        
+        <div class="search-container">
+            <input type="text" id="campoBuscaApostador" class="search-input" placeholder="🔍 Buscar participante por nome..." oninput="filtrarTabelaRanking()">
+        </div>
+
+        <div class="table-responsive">
+            <table class="gambler-table">
+                <thead>
+                    <tr>
+                        <th>Nome do Colaborador</th>
+                        <th>CPF</th>
+                        <th>Aba</th>
+                        <th>Pontos Ganhos</th>
+                        <th>Horário do Registro</th>
+                    </tr>
+                </thead>
+                <tbody id="tabelaApostadores"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <footer>&copy; 2026 Processamento Logístico de Jogos.</footer>
+</div>
+
+<script>
+    const SENHA_ADMIN = "1sr431@!"; 
+    let activeTabId = 'r1';
+    let globalTextoCanhoto = "";
+    let globalNomeApostador = "";
+
+    document.addEventListener("DOMContentLoaded", () => {
+        atualizarListaTela();
+        switchTab('r1');
+    });
+
+    function mascaraCPF(i) {
+        let v = i.value.replace(/\D/g,"");
+        v = v.replace(/(\d{3})(\d)/,"$1.$2");
+        v = v.replace(/(\d{3})(\d)/,"$1.$2");
+        v = v.replace(/(\d{3})(\d{1,2})$/,"$1-$2");
+        i.value = v;
+    }
+
+    function switchTab(tabId, btn) {
+        activeTabId = tabId;
+        document.querySelectorAll('.day-content').forEach(c => c.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById(tabId).classList.add('active');
+        if(btn) btn.classList.add('active');
+
+        document.querySelectorAll('.score-input, .score-input-B, [data-custom-team]').forEach(input => {
+            if (input.closest('.day-content') && input.closest('.day-content').id === tabId) {
+                input.setAttribute('required', 'required');
+            } else {
+                input.removeAttribute('required');
+            }
+        });
+    }
+
+    function copiarChavePixManual() {
+        const chave = "israeljsanches@gmail.com";
+        navigator.clipboard.writeText(chave).then(() => alert("Chave PIX copiada!"));
+    }
+
+    function filtrarTabelaRanking() {
+        const termo = document.getElementById("campoBuscaApostador").value.toLowerCase();
+        const linhas = document.querySelectorAll("#tabelaApostadores tr");
+        linhas.forEach(linha => {
+            const textoNome = linha.querySelector("td strong") ? linha.querySelector("td strong").textContent.toLowerCase() : "";
+            linha.style.display = textoNome.includes(termo) ? "" : "none";
+        });
+    }
+
+    // --- LÓGICA DO SERVIDOR ---
+
+    document.getElementById('bolaoForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const nome = document.getElementById('nome').value.trim();
+        const cpf = document.getElementById('cpf').value.trim();
+        if(cpf.length < 14) { alert("Preencha o CPF corretamente."); return; }
+
+        globalNomeApostador = nome.replace(/\s+/g, '_');
+        const agora = new Date();
+        const carimboTempo = `${agora.toLocaleDateString('pt-BR')} às ${agora.toLocaleTimeString('pt-BR')}`;
+
+        let textoRecibo = `=========================================\n      🎟️ CANHOTO DE APOSTA OFICIAL       \n=========================================\nAPOSTADOR: ${nome}\nCPF      : ${cpf}\nMODALIDADE: BOLA DO HEXA COPA DE 2026\nRODADA   : ${activeTabId.toUpperCase()}\nVALOR    : R$ 10,00\n-----------------------------------------\nPAGAMENTO: CHAVE PIX (israeljsanches@gmail.com)\nFAVORECIDO: Israel de Jesus Sanches Ferreira\n-----------------------------------------\nREGISTRO : ${carimboTempo}\n=========================================\n\nPALPITES:\n`;
+
+        let objetoPalpites = {};
+        const containerAtivo = document.getElementById(activeTabId);
+        containerAtivo.querySelectorAll('.match-card').forEach((card, idx) => {
+            const matchId = card.getAttribute('data-match-id');
+            const inputA = card.querySelector('.score-input');
+            const inputB = card.querySelector('.score-input-B');
+            let valA = parseInt(inputA.value) || 0;
+            let valB = parseInt(inputB.value) || 0;
+            let timeA = inputA.getAttribute('data-teamA') || (card.querySelector('[data-custom-team]')?.value || `Time A [${idx+1}]`).trim();
+            let timeB = inputA.getAttribute('data-teamB') || (card.querySelector('[data-custom-team-B]')?.value || `Time B [${idx+1}]`).trim();
+            textoRecibo += `• ${timeA} [ ${valA} ] x [ ${valB} ] ${timeB}\n`;
+            objetoPalpites[matchId] = { goalsA: valA, goalsB: valB, nameA: timeA, nameB: timeB };
+        });
+        textoRecibo += `\n=========================================`;
+
+        try {
+            let lista = await (await fetch('/api/visitas')).json();
+            lista.push({ nome, cpf, rodada: activeTabId.toUpperCase(), horario: carimboTempo, canhoto: textoRecibo, palpites: objetoPalpites, pontos: 0 });
+            await fetch('/api/visitas', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(lista) });
+            
+            document.getElementById('tituloCanhotoDinamico').textContent = "💾 Canhoto Emitido e Salvo no Servidor!";
+            document.getElementById('areaRecibo').style.display = "block";
+            document.getElementById('canhotoTexto').textContent = textoRecibo;
+            document.getElementById('areaRecibo').scrollIntoView({ behavior: 'smooth' });
+            
+            atualizarListaTela();
+            this.reset();
+        } catch (err) { alert("Erro ao gravar: " + err); }
+    });
+
+    async function lancarGabaritoOficial() {
+        if (prompt("Senha do Administrador:") !== SENHA_ADMIN) { alert("Acesso negado."); return; }
+        
+        // 1. Busca o gabarito atual do servidor
+        let gabarito = await (await fetch('/api/gabarito')).json();
+        const containerAtivo = document.getElementById(activeTabId);
+        const cards = containerAtivo.querySelectorAll('.match-card');
+        
+        // 2. Coleta os resultados com os nomes das seleções
+        cards.forEach(card => {
+            const matchId = card.getAttribute('data-match-id');
+            
+            // AQUI ESTÁ A LÓGICA QUE PUXA OS NOMES QUE VOCÊ VÊ NA TELA
+            const timeA = card.querySelector('.team.left-align') ? card.querySelector('.team.left-align').textContent.trim() : "Time A";
+            const timeB = card.querySelector('.team.right-align') ? card.querySelector('.team.right-align').textContent.trim() : "Time B";
+            
+            // O prompt agora mostra os nomes reais
+            let inputGols = prompt(`Resultado Oficial:\n${timeA} X ${timeB}\nDigite o placar (Ex: 2x1):`);
+            
+            if (inputGols && inputGols.includes('x')) {
+                let partes = inputGols.split('x');
+                gabarito[matchId] = { realA: parseInt(partes[0].trim()) || 0, realB: parseInt(partes[1].trim()) || 0 };
+            }
+        });
+
+        // 3. Salva no servidor e processa o ranking
+        await fetch('/api/gabarito', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(gabarito) });
+        await fetch('/api/processar', { method: 'POST' });
+        
+        alert("Resultados salvos e ranking processado!");
+        atualizarListaTela();
+    }
+
+    async function atualizarListaTela() {
+    const tabela = document.getElementById("tabelaApostadores");
+    try {
+        const response = await fetch('/api/visitas?t=' + new Date().getTime());
+        
+        // Verifica se a resposta foi bem-sucedida (status 200)
+        if (!response.ok) throw new Error("Erro no servidor: " + response.status);
+        
+        const apostadores = await response.json();
+
+        // Se chegar aqui, é porque o JSON é válido
+        tabela.innerHTML = "";
+        if(!apostadores || apostadores.length === 0) return;
+
+        apostadores.sort((a, b) => b.pontos - a.pontos);
+        
+        apostadores.forEach((ap, index) => {
+            const row = document.createElement('tr');
+            row.className = 'clickable-row';
+            row.onclick = () => abrirCanhotoHistorico(index);
+            row.innerHTML = `
+                <td><strong>?? ${ap.nome}</strong></td>
+                <td>${ap.cpf}</td>
+                <td>${ap.rodada}</td>
+                <td><span style="background:#106244; color:white; padding:4px 10px; border-radius:12px; font-weight:bold;">${ap.pontos || 0} pts</span></td>
+                <td style="color:#718096; font-size:12px;">${ap.horario}</td>
+            `;
+            tabela.appendChild(row);
+        });
+    } catch (error) {
+        console.error("Falha ao atualizar lista:", error);
+        // Não quebra a página se o servidor falhar
+    }
+}
+
+    // Excluir aposta
+async function excluirAposta(cpf) {
+    if (prompt("Senha do Administrador:") === SENHA_ADMIN && confirm("Excluir esta aposta?")) {
+        await fetch('/api/excluir-aposta', { method: 'POST', body: JSON.stringify({ cpf }) });
+        atualizarListaTela();
+    }
+}
+
+// Corrigido para não abrir canhoto errado
+async function abrirCanhotoHistorico(index) {
+    const apostadores = await (await fetch('/api/visitas')).json();
+    const tabela = document.getElementById("tabelaApostadores");
+    const cpfClicado = tabela.querySelectorAll("tr")[index].cells[1].textContent;
+    const ap = apostadores.find(a => a.cpf === cpfClicado);
+    
+    if(ap) {
+        globalTextoCanhoto = ap.canhoto;
+        document.getElementById('areaRecibo').style.display = "block";
+        document.getElementById('canhotoTexto').textContent = ap.canhoto;
+        // Adicionei um botão excluir no canhoto se quiser
+        document.getElementById('canhotoTexto').innerHTML += `<br><button class="btn-danger" onclick="excluirAposta('${ap.cpf}')">Excluir Canhoto</button>`;
+        document.getElementById('areaRecibo').scrollIntoView({ behavior: 'smooth' });
+    }
+}
+
+    async function limparListaProtegida() {
+        if (prompt("Senha do Administrador:") === SENHA_ADMIN && confirm("Confirmar limpeza total?")) {
+            await fetch('/api/visitas', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify([]) });
+            await fetch('/api/gabarito', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({}) });
+            atualizarListaTela();
+        }
+    }
+
+    function limparTelaCanhoto() {
+        document.getElementById('areaRecibo').style.display = "none";
+        document.getElementById('bolaoForm').reset();
+    }
+    
+    function copyReceiptText() { navigator.clipboard.writeText(globalTextoCanhoto).then(() => alert("Copiado!")); }
+    function baixarCanhotoArquivo() {
+        const blob = new Blob([globalTextoCanhoto], { type: "text/plain" });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = `Recibo_${globalNomeApostador}.txt`;
+        link.click();
+    }
+</script>
+</body>
+</html>
