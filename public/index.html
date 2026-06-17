@@ -467,14 +467,23 @@
 
     // --- NOVA FUNÇÃO: Injetar botão em cada jogo ---
     function injetarBotoesResultado() {
-            document.querySelectorAll('.match-card').forEach(card => {
-                const matchId = card.getAttribute('data-match-id');
-                const btn = document.createElement('button');
-                btn.className = 'btn-launch-result';
-                btn.textContent = "?? Lançar Resultado deste Jogo";
-                btn.onclick = (e) => { e.preventDefault(); lancarResultadoIndividual(matchId); };
-                card.appendChild(btn);
-            });
+    document.querySelectorAll('.match-card').forEach(card => {
+        // Verifica se o botão já existe para não duplicar se a página recarregar
+        if (card.querySelector('.btn-launch-result')) return;
+
+        const matchId = card.getAttribute('data-match-id');
+        const btn = document.createElement('button');
+        btn.className = 'btn-launch-result';
+        
+        // Usando um texto limpo e legível
+        btn.innerHTML = '🎯 Lançar Placar Oficial'; 
+        
+        btn.onclick = (e) => { 
+            e.preventDefault(); 
+            lancarResultadoIndividual(matchId); 
+        };
+        card.appendChild(btn);
+    });
 }
 
     // --- NOVA FUNÇÃO: Lançamento individual ---
