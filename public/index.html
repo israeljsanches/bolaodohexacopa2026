@@ -457,19 +457,18 @@
 
     // --- NOVA FUNÇÃO: Injetar botão em cada jogo ---
     function injetarBotoesResultado() {
-        document.querySelectorAll('.match-card').forEach(card => {
-            const matchId = card.getAttribute('data-match-id');
-            const btn = document.createElement('button');
-            btn.className = 'btn-secondary';
-            btn.style.gridColumn = "1 / span 3";
-            btn.style.marginTop = "10px";
-            btn.style.padding = "5px";
-            btn.style.fontSize = "10px";
-            btn.textContent = "⚙️ Lançar Resultado deste Jogo";
-            btn.onclick = () => lancarResultadoIndividual(matchId);
-            card.appendChild(btn);
-        });
-    }
+    document.querySelectorAll('.match-card').forEach(card => {
+        const matchId = card.getAttribute('data-match-id');
+        const btn = document.createElement('button');
+        btn.className = 'btn-launch-result'; // Agora usa a classe CSS acima
+        btn.textContent = "⚙️ Lançar Resultado deste Jogo";
+        btn.onclick = (e) => {
+            e.preventDefault(); // Evita qualquer comportamento estranho do formulário
+            lancarResultadoIndividual(matchId);
+        };
+        card.appendChild(btn);
+    });
+}
 
     // --- NOVA FUNÇÃO: Lançamento individual ---
     async function lancarResultadoIndividual(matchId) {
