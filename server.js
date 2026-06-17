@@ -26,7 +26,12 @@ async function start() {
 
 const server = http.createServer(async (req, res) => {
     const p = url.parse(req.url, true);
-    if (req.method === "GET" && p.pathname === "/health") { res.writeHead(200); return res.end("OK"); }
+    
+    // Rota de saúde para o Render
+    if (req.method === "GET" && p.pathname === "/health") { 
+        res.writeHead(200); 
+        return res.end("OK"); 
+    }
 
     if (req.method === "GET") {
         if (p.pathname === "/api/visitas") {
@@ -53,22 +58,55 @@ const server = http.createServer(async (req, res) => {
         req.on("end", async () => {
             try {
                 let data = body ? JSON.parse(body) : {};
+                
                 if (p.pathname === "/api/visitas") {
-                    // AQUI A MUDANÇA: inserção individual (sem apagar o resto)
+                    // Inserção individual: não apaga apostas anteriores
                     await db.collection("apostas").insertOne(data);
                     res.writeHead(200, { "Content-Type": "application/json" });
                     res.end(JSON.stringify({ status: "success" }));
-                } else if (p.pathname === "/api/excluir-aposta") {
+                } 
+                else if (p.pathname === "/api/excluir-aposta") {
                     await db.collection("apostas").deleteOne({ cpf: data.cpf });
+                    res.writeHead(200);
                     res.end(JSON.stringify({ ok: true }));
-                } else if (p.pathname === "/api/gabarito") {
+                } 
+                else if (p.pathname === "/api/gabarito") {
                     await db.collection("gabarito").updateOne({ _id: "atual" }, { $set: { conteudo: data } }, { upsert: true });
+                    res.writeHead(200);
                     res.end(JSON.stringify({ ok: true }));
-                } else if (p.pathname === "/api/processar") {
-                    // ... (mantenha sua lógica de processamento de pontos aqui)
+                } 
+                else if (p.pathname === "/api/processar") {
+                    const apostas = await db.collection("apostas").find().toArray();
+                    const gabaritoDoc = await db.collection("gabarito").findOne({ _id: "atual" });
+                    
+                    if (gabaritoDoc && gabaritoDoc.conteudo) {
+                        const gabarito = gabaritoDoc.conteudo;
+                        for (let aposta of apostas) {
+                            let totalPontos = 0;
+                            if (aposta.palpites) {
+                                for (let matchId in aposta.palpites) {
+                                    if (gabarito[matchId]) {
+                                        const p = aposta.palpites[matchId];
+                                        const r = gabarito[matchId];
+                                        const pA = Number(p.goalsA), pB = Number(p.goalsB);
+                                        const rA = Number(r.realA), rB = Number(r.realB);
+                                        
+                                        if (pA === rA && pB === rB) totalPontos += 5;
+                                        else if ((pA > pB && rA > rB) || (pA < pB && rA < rB) || (pA === pB && rA === rB)) totalPontos += 2;
+                                    }
+                                }
+                            }
+                            await db.collection("apostas").updateOne({ _id: aposta._id }, { $set: { pontos: totalPontos } });
+                        }
+                    }
+                    res.writeHead(200, { "Content-Type": "application/json" });
                     res.end(JSON.stringify({ ok: true }));
                 }
-            } catch (err) { res.writeHead(500); res.end(JSON.stringify({ error: err.message })); }
+            } catch (err) { 
+                console.error("Erro no servidor:", err);
+                res.writeHead(500); 
+                res.end(JSON.stringify({ error: err.message })); 
+            }
         });
     }
 });
