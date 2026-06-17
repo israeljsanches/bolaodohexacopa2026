@@ -632,13 +632,37 @@
     }
 }
     async function limparListaProtegida() {
-        if (prompt("Senha do Administrador:") === SENHA_ADMIN && confirm("Limpar tudo?")) {
-            await fetch('/api/visitas', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify([]) });
-            await fetch('/api/gabarito', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({}) });
-            atualizarListaTela();
+        if (prompt("Senha do Administrador:") === SENHA_ADMIN && confirm("⚠️ ATENÇÃO: Deseja apagar TODOS os registros e zerar o bolão?")) {
+            try {
+                // 1. Limpa as apostas no servidor
+                await fetch('/api/visitas', { 
+                    method: 'POST', 
+                    headers: {'Content-Type': 'application/json'}, 
+                    body: JSON.stringify([]) 
+                });
+                
+                // 2. Limpa o gabarito no servidor
+                await fetch('/api/gabarito', { 
+                    method: 'POST', 
+                    headers: {'Content-Type': 'application/json'}, 
+                    body: JSON.stringify({}) 
+                });
+
+                // 3. Limpa a área de recibo na tela, caso esteja aberta
+                document.getElementById('areaRecibo').style.display = "none";
+                
+                // 4. Limpa o formulário de palpites na tela
+                document.getElementById('bolaoForm').reset();
+                
+                // 5. Recarrega a tabela de ranking (que agora estará vazia)
+                atualizarListaTela();
+                
+                alert("✅ Bolão zerado com sucesso!");
+            } catch (err) {
+                alert("Erro ao zerar registros: " + err);
+            }
         }
     }
-
     function limparTelaCanhoto() { document.getElementById('areaRecibo').style.display = "none"; }
     function copyReceiptText() { navigator.clipboard.writeText(globalTextoCanhoto).then(() => alert("Copiado!")); }
     function baixarCanhotoArquivo() {
