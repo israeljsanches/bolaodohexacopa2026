@@ -16,19 +16,7 @@
             --text-muted: #6c757d;
             --border-color: #dee2e6;
         }
-        .btn-launch-result {
-            grid-column: 1 / span 3;
-            margin-top: 8px;
-            padding: 6px;
-            background: #e2e8f0;
-            border: 1px solid #cbd5e0;
-            border-radius: 6px;
-            font-size: 11px;
-            cursor: pointer;
-            font-weight: bold;
-            color: #4a5568;
-        }
-        .btn-launch-result:hover { background: #cbd5e0; }
+        
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         body { background-color: var(--background-color); color: var(--text-color); line-height: 1.6; padding: 15px; }
         .container { max-width: 950px; margin: 0 auto; }
@@ -152,6 +140,19 @@
             .vs { font-size: 10px; padding: 2px 4px; min-width: 18px; }
             .btn-secondary { width: 100%; }
         }
+        .btn-launch-result {
+            grid-column: 1 / span 3;
+            margin-top: 8px;
+            padding: 6px;
+            background: #e2e8f0;
+            border: 1px solid #cbd5e0;
+            border-radius: 6px;
+            font-size: 11px;
+            cursor: pointer;
+            font-weight: bold;
+            color: #4a5568;
+        }
+        .btn-launch-result:hover { background: #cbd5e0; }
     </style>
 </head>
 <body>
@@ -457,17 +458,14 @@
 
     // --- NOVA FUNÇÃO: Injetar botão em cada jogo ---
     function injetarBotoesResultado() {
-    document.querySelectorAll('.match-card').forEach(card => {
-        const matchId = card.getAttribute('data-match-id');
-        const btn = document.createElement('button');
-        btn.className = 'btn-launch-result'; // Agora usa a classe CSS acima
-        btn.textContent = "⚙️ Lançar Resultado deste Jogo";
-        btn.onclick = (e) => {
-            e.preventDefault(); // Evita qualquer comportamento estranho do formulário
-            lancarResultadoIndividual(matchId);
-        };
-        card.appendChild(btn);
-    });
+            document.querySelectorAll('.match-card').forEach(card => {
+                const matchId = card.getAttribute('data-match-id');
+                const btn = document.createElement('button');
+                btn.className = 'btn-launch-result';
+                btn.textContent = "?? Lançar Resultado deste Jogo";
+                btn.onclick = (e) => { e.preventDefault(); lancarResultadoIndividual(matchId); };
+                card.appendChild(btn);
+            });
 }
 
     // --- NOVA FUNÇÃO: Lançamento individual ---
