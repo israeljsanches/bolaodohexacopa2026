@@ -16,7 +16,9 @@ async function start() {
         db = client.db("bolao_database");
         console.log("Conectado ao MongoDB!");
         server.listen(PORT, "0.0.0.0", () => console.log(`Servidor rodando!`));
-    } catch (err) { console.error("ERRO CRÍTICO NA CONEXÃO:", err); }
+    } catch (err) { 
+        console.error("ERRO CRÍTICO NA CONEXÃO:", err); 
+    }
 }
 
 const server = http.createServer(async (req, res) => {
@@ -52,45 +54,51 @@ const server = http.createServer(async (req, res) => {
                     await db.collection("apostas").deleteMany({});
                     if (data.length > 0) await db.collection("apostas").insertMany(data);
                 } else if (p.pathname === "/api/excluir-aposta") {
-                    // Nova função para excluir aposta individual
                     await db.collection("apostas").deleteOne({ cpf: data.cpf });
                 } else if (p.pathname === "/api/gabarito") {
                     await db.collection("gabarito").updateOne({ _id: "atual" }, { $set: { conteudo: data } }, { upsert: true });
                 } else if (p.pathname === "/api/processar") {
-        try {
-            const apostas = await db.collection("apostas").find().toArray();
-            const gabaritoDoc = await db.collection("gabarito").findOne({ _id: "atual" });
-            
-            if (gabaritoDoc && gabaritoDoc.conteudo) {
-                const gabarito = gabaritoDoc.conteudo;
-                for (let aposta of apostas) {
-                    let totalPontos = 0;
-                    if (aposta.palpites) {
-                        for (let matchId in aposta.palpites) {
-                            if (gabarito[matchId]) {
-                                const p = aposta.palpites[matchId];
-                                const r = gabarito[matchId];
-                                const pA = Number(p.goalsA), pB = Number(p.goalsB);
-                                const rA = Number(r.realA), rB = Number(r.realB);
-                                
-                                // Nova lógica de pontuação aplicada aqui:
-                                if (pA === rA && pB === rB) {
-                                    totalPontos += 5; // Placar Exato
-                                } else if ((pA > pB && rA > rB) || (pA < pB && rA < rB) || (pA === pB && rA === rB)) {
-                                    totalPontos += 2; // Acerto de Vitória ou Empate
+                    try {
+                        const apostas = await db.collection("apostas").find().toArray();
+                        const gabaritoDoc = await db.collection("gabarito").findOne({ _id: "atual" });
+                        
+                        if (gabaritoDoc && gabaritoDoc.conteudo) {
+                            const gabarito = gabaritoDoc.conteudo;
+                            for (let aposta of apostas) {
+                                let totalPontos = 0;
+                                if (aposta.palpites) {
+                                    for (let matchId in aposta.palpites) {
+                                        if (gabarito[matchId]) {
+                                            const p = aposta.palpites[matchId];
+                                            const r = gabarito[matchId];
+                                            const pA = Number(p.goalsA), pB = Number(p.goalsB);
+                                            const rA = Number(r.realA), rB = Number(r.realB);
+                                            
+                                            if (pA === rA && pB === rB) {
+                                                totalPontos += 5;
+                                            } else if ((pA > pB && rA > rB) || (pA < pB && rA < rB) || (pA === pB && rA === rB)) {
+                                                totalPontos += 2;
+                                            }
+                                        }
+                                    }
                                 }
+                                await db.collection("apostas").updateOne({ _id: aposta._id }, { $set: { pontos: totalPontos } });
                             }
                         }
+                        res.writeHead(200, { "Content-Type": "application/json" });
+                        res.end(JSON.stringify({ ok: true }));
+                    } catch (err) {
+                        console.error("Erro no servidor:", err);
+                        res.writeHead(500);
+                        res.end(JSON.stringify({ error: err.message }));
                     }
-                    await db.collection("apostas").updateOne({ _id: aposta._id }, { $set: { pontos: totalPontos } });
                 }
+            } catch (err) {
+                res.writeHead(400);
+                res.end(JSON.stringify({ error: "JSON inválido" }));
             }
-            res.writeHead(200, { "Content-Type": "application/json" });
-            res.end(JSON.stringify({ ok: true }));
-        } catch (err) {
-            console.error("Erro no servidor:", err);
-            res.writeHead(500);
-            res.end(JSON.stringify({ error: err.message }));
-        }
-        return;
+        });
     }
+});
+
+start();
