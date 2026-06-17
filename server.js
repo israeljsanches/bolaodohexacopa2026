@@ -60,11 +60,17 @@ const server = http.createServer(async (req, res) => {
                 let data = body ? JSON.parse(body) : {};
                 
                 if (p.pathname === "/api/visitas") {
-                    // Inserção individual: não apaga apostas anteriores
-                    await db.collection("apostas").insertOne(data);
-                    res.writeHead(200, { "Content-Type": "application/json" });
-                    res.end(JSON.stringify({ status: "success" }));
-                } 
+                    // AJUSTE: Verifica se é uma lista vazia para zerar ou um objeto para inserir
+                    if (Array.isArray(data) && data.length === 0) {
+                        await db.collection("apostas").deleteMany({});
+                        res.writeHead(200, { "Content-Type": "application/json" });
+                        res.end(JSON.stringify({ status: "cleared" }));
+                    } else {
+                        await db.collection("apostas").insertOne(data);
+                        res.writeHead(200, { "Content-Type": "application/json" });
+                        res.end(JSON.stringify({ status: "success" }));
+                    }
+                }
                 else if (p.pathname === "/api/excluir-aposta") {
                     await db.collection("apostas").deleteOne({ cpf: data.cpf });
                     res.writeHead(200);
