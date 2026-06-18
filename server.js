@@ -82,32 +82,45 @@ const server = http.createServer(async (req, res) => {
                     res.end(JSON.stringify({ ok: true }));
                 } 
                 else if (p.pathname === "/api/processar") {
-                    const apostas = await db.collection("apostas").find().toArray();
-                    const gabaritoDoc = await db.collection("gabarito").findOne({ _id: "atual" });
-                    
-                    if (gabaritoDoc && gabaritoDoc.conteudo) {
-                        const gabarito = gabaritoDoc.conteudo;
-                        for (let aposta of apostas) {
-                            let totalPontos = 0;
-                            if (aposta.palpites) {
-                                for (let matchId in aposta.palpites) {
-                                    if (gabarito[matchId]) {
-                                        const p = aposta.palpites[matchId];
-                                        const r = gabarito[matchId];
-                                        const pA = Number(p.goalsA), pB = Number(p.goalsB);
-                                        const rA = Number(r.realA), rB = Number(r.realB);
-                                        
-                                        if (pA === rA && pB === rB) totalPontos += 5;
-                                        else if ((pA > pB && rA > rB) || (pA < pB && rA < rB) || (pA === pB && rA === rB)) totalPontos += 2;
-                                    }
-                                }
-                            }
-                            await db.collection("apostas").updateOne({ _id: aposta._id }, { $set: { pontos: totalPontos } });
+    const apostas = await db.collection("apostas").find().toArray();
+    const gabaritoDoc = await db.collection("gabarito").findOne({ _id: "atual" });
+    
+    if (gabaritoDoc && gabaritoDoc.conteudo) {
+        const gabarito = gabaritoDoc.conteudo;
+        for (let aposta of apostas) {
+            let totalPontos = 0;
+            let exatos = 0;
+            let acertosVencedor = 0; // "Vencedores" (acerto do sinal: casa, fora ou empate)
+
+            if (aposta.palpites) {
+                for (let matchId in aposta.palpites) {
+                    if (gabarito[matchId]) {
+                        const p = aposta.palpites[matchId];
+                        const r = gabarito[matchId];
+                        const pA = Number(p.goalsA), pB = Number(p.goalsB);
+                        const rA = Number(r.realA), rB = Number(r.realB);
+                        
+                        // Lógica de pontuação mantida
+                        if (pA === rA && pB === rB) {
+                            totalPontos += 5;
+                            exatos += 1;
+                        } else if ((pA > pB && rA > rB) || (pA < pB && rA < rB) || (pA === pB && rA === rB)) {
+                            totalPontos += 2;
+                            acertosVencedor += 1;
                         }
                     }
-                    res.writeHead(200, { "Content-Type": "application/json" });
-                    res.end(JSON.stringify({ ok: true }));
                 }
+            }
+            // Atualiza os registros com os novos critérios
+            await db.collection("apostas").updateOne(
+                { _id: aposta._id }, 
+                { $set: { pontos: totalPontos, exatos: exatos, acertosVencedor: acertosVencedor } }
+            );
+        }
+    }
+    res.writeHead(200, { "Content-Type": "application/json" });
+    res.end(JSON.stringify({ ok: true }));
+}
             } catch (err) { 
                 console.error("Erro no servidor:", err);
                 res.writeHead(500); 
