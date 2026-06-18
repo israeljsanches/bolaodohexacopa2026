@@ -480,6 +480,7 @@
 
     document.addEventListener("DOMContentLoaded", () => {
         atualizarListaTela();
+        carregarResultadosNosInputs();
         switchTab('r1');
         injetarBotoesResultado(); // <--- Chamada para criar os botões
     });
@@ -529,6 +530,7 @@
             
             alert("Resultado de " + timeA + " x " + timeB + " lançado!");
             atualizarListaTela();
+            carregarResultadosNosInputs();
         }
     }
 
@@ -741,6 +743,27 @@
     // 3. Opcional: remove os <br> que você adiciona no abrirCanhotoHistorico
     const espacos = canhotoTexto.querySelectorAll('br');
     espacos.forEach(br => br.remove());
+}
+    async function carregarResultadosNosInputs() {
+    try {
+        const response = await fetch('/api/gabarito');
+        const gabarito = await response.json();
+
+        // Itera sobre todos os jogos que possuem placar salvo no gabarito
+        for (const [matchId, resultado] of Object.entries(gabarito)) {
+            const card = document.querySelector(`[data-match-id="${matchId}"]`);
+            if (card) {
+                const inputA = card.querySelector('.score-input');
+                const inputB = card.querySelector('.score-input-B');
+                if (inputA && inputB) {
+                    inputA.value = resultado.realA;
+                    inputB.value = resultado.realB;
+                }
+            }
+        }
+    } catch (err) {
+        console.error("Erro ao carregar gabarito nos inputs:", err);
+    }
 }
 </script>
 </body>
