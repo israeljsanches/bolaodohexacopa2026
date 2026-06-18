@@ -635,8 +635,21 @@
         
         const apostadores = await response.json();
         
-        // 1. Garante que pontos seja tratado como número para a ordenação correta
-        apostadores.sort((a, b) => (b.pontos || 0) - (a.pontos || 0));
+        // ORDENAÇÃO COM DESEMPATE:
+        // Mantemos a base original e adicionamos os critérios de desempate
+        apostadores.sort((a, b) => {
+            const ptsA = parseInt(a.pontos) || 0;
+            const ptsB = parseInt(b.pontos) || 0;
+            if (ptsB !== ptsA) return ptsB - ptsA;
+
+            const exA = parseInt(a.exatos) || 0;
+            const exB = parseInt(b.exatos) || 0;
+            if (exB !== exA) return exB - exA;
+
+            const vencA = parseInt(a.acertosVencedor) || 0;
+            const vencB = parseInt(b.acertosVencedor) || 0;
+            return vencB - vencA;
+        });
         
         tabela.innerHTML = "";
         
@@ -644,10 +657,9 @@
             const row = document.createElement('tr');
             row.className = 'clickable-row';
             
-            // 2. CORREÇÃO: Chamando a função pelo nome correto definido no seu script
+            // Mantendo a chamada original que funciona em produção
             row.onclick = () => abrirCanhotoHistorico(ap.cpf);
             
-            // 3. Aplicação do estilo de Badge (CSS que você já adicionou ao seu arquivo)
             const pts = ap.pontos || 0;
             const classeBadge = pts > 0 ? "pontos-badge pontos-positivo" : "pontos-badge";
             
