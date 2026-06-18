@@ -162,6 +162,25 @@
     border-color: #adb5bd;
     color: #0f5132; /* Verde do tema ao passar o mouse */
 }
+/* Estilo para a célula de Pontos */
+.pontos-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-weight: 800;
+    font-size: 13px;
+    background-color: #e8f5e9; /* Verde bem claro */
+    color: #2e7d32; /* Verde escuro */
+    border: 1px solid #c8e6c9;
+}
+
+/* Destaque para pontos > 0 */
+.pontos-positivo {
+    background-color: #d4edda;
+    color: #155724;
+    border-color: #c3e6cb;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
     </style>
 </head>
 <body>
@@ -599,22 +618,44 @@
     }
 
     async function atualizarListaTela() {
-        const tabela = document.getElementById("tabelaApostadores");
-        try {
-            const response = await fetch('/api/visitas?t=' + new Date().getTime());
-            if (!response.ok) throw new Error("Erro no servidor");
-            const apostadores = await response.json();
-            tabela.innerHTML = "";
-            apostadores.sort((a, b) => b.pontos - a.pontos);
-            apostadores.forEach((ap, index) => {
-                const row = document.createElement('tr');
-                row.className = 'clickable-row';
-                row.onclick = () => abrirCanhotoHistorico(index);
-                row.innerHTML = `<td><strong>?? ${ap.nome}</strong></td><td>${ap.cpf}</td><td>${ap.rodada}</td><td>${ap.pontos || 0} pts</td><td>${ap.horario}</td>`;
-                tabela.appendChild(row);
-            });
-        } catch (error) { console.error("Falha ao atualizar:", error); }
+    const tabela = document.getElementById("tabelaApostadores");
+    try {
+        const response = await fetch('/api/visitas?t=' + Date.now()); // Mais limpo que new Date().getTime()
+        if (!response.ok) throw new Error("Erro ao buscar dados");
+        
+        const apostadores = await response.json();
+        
+        // 1. Correção: Garante que pontos seja tratado como número (evita ordenação por string)
+        apostadores.sort((a, b) => (b.pontos || 0) - (a.pontos || 0));
+        
+        tabela.innerHTML = "";
+        
+        apostadores.forEach((ap) => {
+            const row = document.createElement('tr');
+            row.className = 'clickable-row';
+            
+            // 2. Melhoria: A lógica do click deve buscar pelo CPF ou ID único, não pelo index
+            // Isso evita que o clique abra o canhoto errado se a lista for filtrada
+            row.onclick = () => abrirCanhotoPorCPF(ap.cpf);
+            
+            // 3. Aplicação do estilo de Badge (CSS da mensagem anterior)
+            const pts = ap.pontos || 0;
+            const classeBadge = pts > 0 ? "pontos-badge pontos-positivo" : "pontos-badge";
+            
+            row.innerHTML = `
+                <td><strong>${ap.nome}</strong></td>
+                <td>${ap.cpf}</td>
+                <td>${ap.rodada}</td>
+                <td><span class="${classeBadge}">${pts} pts</span></td>
+                <td>${ap.horario}</td>
+            `;
+            tabela.appendChild(row);
+        });
+    } catch (error) { 
+        console.error("Falha ao atualizar:", error); 
+        tabela.innerHTML = `<tr><td colspan="5" style="text-align:center; color:red;">Erro ao carregar ranking.</td></tr>`;
     }
+}
 
     async function excluirAposta(cpf) {
         if (prompt("Senha do Administrador:") === SENHA_ADMIN && confirm("Excluir?")) {
@@ -623,31 +664,39 @@
         }
     }
 
-    async function abrirCanhotoHistorico(index) {
-    const apostadores = await (await fetch('/api/visitas')).json();
-    const tabela = document.getElementById("tabelaApostadores");
-    const cpfClicado = tabela.querySelectorAll("tr")[index].cells[1].textContent;
-    const ap = apostadores.find(a => a.cpf === cpfClicado);
+    async function abrirCanhotoHistorico(cpf) {
+    // 1. Busca os dados diretamente (ou aproveite os dados já carregados se preferir performance)
+    const response = await fetch('/api/visitas');
+    const apostadores = await response.json();
+    const ap = apostadores.find(a => a.cpf === cpf);
     
-    if(ap) {
-        globalTextoCanhoto = ap.canhoto;
-        document.getElementById('areaRecibo').style.display = "block";
-        document.getElementById('canhotoTexto').textContent = ap.canhoto;
-        
-        // REINSERÇÃO DO BOTÃO DE EXCLUIR
-        const btnExcluir = document.createElement("button");
-        btnExcluir.className = "btn-danger";
-        btnExcluir.textContent = "? Excluir Canhoto";
-        btnExcluir.onclick = () => excluirAposta(ap.cpf);
-        
-        // Limpa botões antigos antes de adicionar o novo para não duplicar
-        const container = document.getElementById('canhotoTexto');
-        container.appendChild(document.createElement("br"));
-        container.appendChild(document.createElement("br"));
-        container.appendChild(btnExcluir);
-        
-        document.getElementById('areaRecibo').scrollIntoView({ behavior: 'smooth' });
-    }
+    if (!ap) return; // Segurança caso o registro não exista
+    
+    globalTextoCanhoto = ap.canhoto;
+    
+    // 2. Prepara a área do recibo
+    const areaRecibo = document.getElementById('areaRecibo');
+    const canhotoTexto = document.getElementById('canhotoTexto');
+    
+    areaRecibo.style.display = "block";
+    canhotoTexto.textContent = ap.canhoto;
+    document.getElementById('tituloCanhotoDinamico').textContent = `💾 Canhoto de ${ap.nome}`;
+    
+    // 3. Gerenciamento seguro do botão de excluir (evita duplicação)
+    // Limpa apenas os botões de ação extras que foram adicionados anteriormente
+    const botoesExtras = canhotoTexto.querySelectorAll('.btn-danger');
+    botoesExtras.forEach(btn => btn.remove());
+    
+    const btnExcluir = document.createElement("button");
+    btnExcluir.className = "btn-danger";
+    btnExcluir.style.marginTop = "15px"; // Espaçamento melhor
+    btnExcluir.textContent = "❌ Excluir Canhoto";
+    btnExcluir.onclick = () => excluirAposta(ap.cpf);
+    
+    canhotoTexto.appendChild(document.createElement("br"));
+    canhotoTexto.appendChild(btnExcluir);
+    
+    areaRecibo.scrollIntoView({ behavior: 'smooth' });
 }
     async function limparListaProtegida() {
         if (prompt("Senha do Administrador:") === SENHA_ADMIN && confirm("⚠️ ATENÇÃO: Deseja apagar TODOS os registros e zerar o bolão?")) {
@@ -681,15 +730,19 @@
             }
         }
     }
-    function limparTelaCanhoto() { document.getElementById('areaRecibo').style.display = "none"; }
-    function copyReceiptText() { navigator.clipboard.writeText(globalTextoCanhoto).then(() => alert("Copiado!")); }
-    function baixarCanhotoArquivo() {
-        const blob = new Blob([globalTextoCanhoto], { type: "text/plain" });
-        const link = document.createElement("a");
-        link.href = URL.createObjectURL(blob);
-        link.download = `Recibo_${globalNomeApostador}.txt`;
-        link.click();
-    }
+    function limparTelaCanhoto() { 
+    // 1. Esconde a área do recibo
+    document.getElementById('areaRecibo').style.display = "none";
+    
+    // 2. Limpa os botões de ação (como o de Excluir) da memória do DOM
+    const canhotoTexto = document.getElementById('canhotoTexto');
+    const botoesExtras = canhotoTexto.querySelectorAll('.btn-danger');
+    botoesExtras.forEach(btn => btn.remove());
+    
+    // 3. Opcional: remove os <br> que você adiciona no abrirCanhotoHistorico
+    const espacos = canhotoTexto.querySelectorAll('br');
+    espacos.forEach(br => br.remove());
+}
 </script>
 </body>
 </html>
