@@ -733,18 +733,29 @@
         }
     }
     function limparTelaCanhoto() { 
-    // 1. Esconde a área do recibo
-    document.getElementById('areaRecibo').style.display = "none";
-    
-    // 2. Limpa os botões de ação (como o de Excluir) da memória do DOM
-    const canhotoTexto = document.getElementById('canhotoTexto');
-    const botoesExtras = canhotoTexto.querySelectorAll('.btn-danger');
-    botoesExtras.forEach(btn => btn.remove());
-    
-    // 3. Opcional: remove os <br> que você adiciona no abrirCanhotoHistorico
-    const espacos = canhotoTexto.querySelectorAll('br');
-    espacos.forEach(br => br.remove());
-}
+        // Apenas esconde a área sem alterar dados
+        document.getElementById('areaRecibo').style.display = "none";
+        
+        // Remove os botões de ação extras que foram injetados dinamicamente
+        const canhotoTexto = document.getElementById('canhotoTexto');
+        const botoesExtras = canhotoTexto.querySelectorAll('.btn-danger, br');
+        botoesExtras.forEach(el => el.remove());
+    }
+
+    function copyReceiptText() {
+        if (!globalTextoCanhoto) return;
+        navigator.clipboard.writeText(globalTextoCanhoto).then(() => alert("Copiado!"));
+    }
+
+    function baixarCanhotoArquivo() {
+        if (!globalTextoCanhoto) return;
+        const blob = new Blob([globalTextoCanhoto], { type: "text/plain" });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        // Usa o nome salvo na variável global ou um padrão seguro
+        link.download = `Recibo_${globalNomeApostador || 'Apostador'}.txt`;
+        link.click();
+    }
     async function carregarResultadosNosInputs() {
     try {
         const response = await fetch('/api/gabarito');
