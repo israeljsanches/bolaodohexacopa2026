@@ -620,12 +620,12 @@
     async function atualizarListaTela() {
     const tabela = document.getElementById("tabelaApostadores");
     try {
-        const response = await fetch('/api/visitas?t=' + Date.now()); // Mais limpo que new Date().getTime()
+        const response = await fetch('/api/visitas?t=' + Date.now()); 
         if (!response.ok) throw new Error("Erro ao buscar dados");
         
         const apostadores = await response.json();
         
-        // 1. Correção: Garante que pontos seja tratado como número (evita ordenação por string)
+        // 1. Garante que pontos seja tratado como número para a ordenação correta
         apostadores.sort((a, b) => (b.pontos || 0) - (a.pontos || 0));
         
         tabela.innerHTML = "";
@@ -634,11 +634,10 @@
             const row = document.createElement('tr');
             row.className = 'clickable-row';
             
-            // 2. Melhoria: A lógica do click deve buscar pelo CPF ou ID único, não pelo index
-            // Isso evita que o clique abra o canhoto errado se a lista for filtrada
-            row.onclick = () => abrirCanhotoPorCPF(ap.cpf);
+            // 2. CORREÇÃO: Chamando a função pelo nome correto definido no seu script
+            row.onclick = () => abrirCanhotoHistorico(ap.cpf);
             
-            // 3. Aplicação do estilo de Badge (CSS da mensagem anterior)
+            // 3. Aplicação do estilo de Badge (CSS que você já adicionou ao seu arquivo)
             const pts = ap.pontos || 0;
             const classeBadge = pts > 0 ? "pontos-badge pontos-positivo" : "pontos-badge";
             
