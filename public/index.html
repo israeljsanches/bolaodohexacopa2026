@@ -731,45 +731,58 @@
     }
 
     document.getElementById('bolaoForm').addEventListener('submit', async function(e) {
-        e.preventDefault();
-        const nome = document.getElementById('nome').value.trim();
-        const cpf = document.getElementById('cpf').value.trim();
-        if(cpf.length < 14) { alert("Preencha o CPF corretamente."); return; }
+    e.preventDefault();
+    const nome = document.getElementById('nome').value.trim();
+    const cpf = document.getElementById('cpf').value.trim();
+    if(cpf.length < 14) { alert("Preencha o CPF corretamente."); return; }
 
-        globalNomeApostador = nome.replace(/\s+/g, '_');
-        const agora = new Date();
-        const carimboTempo = `${agora.toLocaleDateString('pt-BR')} às ${agora.toLocaleTimeString('pt-BR')}`;
+    globalNomeApostador = nome.replace(/\s+/g, '_');
+    const agora = new Date();
+    const carimboTempo = `${agora.toLocaleDateString('pt-BR')} às ${agora.toLocaleTimeString('pt-BR')}`;
 
-        let textoRecibo = `=========================================\n     🎟️ CANHOTO DE APOSTA OFICIAL       \n=========================================\nAPOSTADOR: ${nome}\nCPF      : ${cpf}\nMODALIDADE: BOLA DO HEXA COPA DE 2026\nRODADA    : ${activeTabId.toUpperCase()}\nVALOR     : R$ 10,00\n-----------------------------------------\nPAGAMENTO: CHAVE PIX (israeljsanches@gmail.com)\nFAVORECIDO: Israel de Jesus Sanches Ferreira\n-----------------------------------------\nREGISTRO : ${carimboTempo}\n=========================================\n\nPALPITES:\n`;
+    let textoRecibo = `=========================================\n  🎟️ CANHOTO DE APOSTA OFICIAL       \n=========================================\nAPOSTADOR: ${nome}\nCPF     : ${cpf}\nMODALIDADE: BOLA DO HEXA COPA DE 2026\nRODADA    : ${activeTabId.toUpperCase()}\nVALOR     : R$ 10,00\n-----------------------------------------\nPAGAMENTO: CHAVE PIX (israeljsanches@gmail.com)\nFAVORECIDO: Israel de Jesus Sanches Ferreira\n-----------------------------------------\nREGISTRO : ${carimboTempo}\n=========================================\n\nPALPITES:\n`;
 
-        let objetoPalpites = {};
-        const containerAtivo = document.getElementById(activeTabId);
-        containerAtivo.querySelectorAll('.match-card').forEach((card, idx) => {
-            const matchId = card.getAttribute('data-match-id');
-            const inputA = card.querySelector('.score-input');
-            const inputB = card.querySelector('.score-input-B');
+    let objetoPalpites = {};
+    
+    // --- AQUI ESTÁ A MUDANÇA ESSENCIAL ---
+    // Selecionamos o container da aba ativa
+    const containerAtivo = document.getElementById(activeTabId);
+    // Buscamos os cards APENAS dentro desse container
+    const cards = containerAtivo.querySelectorAll('.match-card');
+
+    cards.forEach((card, idx) => {
+        const matchId = card.getAttribute('data-match-id');
+        const inputA = card.querySelector('.score-input');
+        const inputB = card.querySelector('.score-input-B');
+        
+        // Garante que só processamos se os campos existirem (evita erros em cards custom)
+        if (inputA && inputB) {
             let valA = parseInt(inputA.value) || 0;
             let valB = parseInt(inputB.value) || 0;
-            let timeA = inputA.getAttribute('data-teamA') || (card.querySelector('[data-custom-team]')?.value || `Time A [${idx+1}]`).trim();
-            let timeB = inputA.getAttribute('data-teamB') || (card.querySelector('[data-custom-team-B]')?.value || `Time B [${idx+1}]`).trim();
+            let timeA = inputA.getAttribute('data-teamA') || `Time A [${idx+1}]`;
+            let timeB = inputA.getAttribute('data-teamB') || `Time B [${idx+1}]`;
+            
             textoRecibo += `• ${timeA} [ ${valA} ] x [ ${valB} ] ${timeB}\n`;
             objetoPalpites[matchId] = { goalsA: valA, goalsB: valB, nameA: timeA, nameB: timeB };
-        });
-        textoRecibo += `\n=========================================`;
-
-        try {
-            const novoApostador = { nome, cpf, rodada: activeTabId.toUpperCase(), horario: carimboTempo, canhoto: textoRecibo, palpites: objetoPalpites, pontos: 0 };
-            await fetch('/api/visitas', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(novoApostador) });
-            
-            document.getElementById('tituloCanhotoDinamico').textContent = "💾 Canhoto Emitido e Salvo!";
-            document.getElementById('areaRecibo').style.display = "block";
-            document.getElementById('canhotoTexto').textContent = textoRecibo;
-            document.getElementById('areaRecibo').scrollIntoView({ behavior: 'smooth' });
-            
-            atualizarListaTela();
-            this.reset();
-        } catch (err) { alert("Erro ao gravar: " + err); }
+        }
     });
+    // --- FIM DA MUDANÇA ---
+
+    textoRecibo += `\n=========================================`;
+
+    try {
+        const novoApostador = { nome, cpf, rodada: activeTabId.toUpperCase(), horario: carimboTempo, canhoto: textoRecibo, palpites: objetoPalpites, pontos: 0 };
+        await fetch('/api/visitas', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(novoApostador) });
+        
+        document.getElementById('tituloCanhotoDinamico').textContent = "💾 Canhoto Emitido e Salvo!";
+        document.getElementById('areaRecibo').style.display = "block";
+        document.getElementById('canhotoTexto').textContent = textoRecibo;
+        document.getElementById('areaRecibo').scrollIntoView({ behavior: 'smooth' });
+        
+        atualizarListaTela();
+        this.reset();
+    } catch (err) { alert("Erro ao gravar: " + err); }
+});
 
     async function lancarGabaritoOficial() {
         if (prompt("Senha do Administrador:") !== SENHA_ADMIN) { alert("Acesso negado."); return; }
