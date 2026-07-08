@@ -29,7 +29,7 @@
         header h1 { font-size: 28px; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1.5px; text-shadow: 0 2px 4px rgba(0,0,0,0.3); }
         header p { font-size: 15px; color: #e2e8f0; opacity: 0.9; }
 
-        .rules-box { background-color: #fff3cd; border-left: 5px solid var(--secondary-dark); color: #664d03; padding: 18px; border-radius: 8px; margin-bottom: 25px; font-size: 13.5px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+        .rules-box { background-color: #fff3cd; border-left: 5px solid var(--secondary-dark); color: #664d03; padding: 18px; border-radius: 8px; margin-bottom: 25px; font-size: 13.5px; box-shadow: 0 2px oitapx rgba(0,0,0,0.02); }
         .rules-box ul { margin-left: 20px; margin-top: 6px; }
         .rules-box li { margin-bottom: 4px; }
 
@@ -248,8 +248,8 @@
         <button class="tab-btn" onclick="switchTab('r2')">Rodada 2 (24 Jogos)</button>
         <button class="tab-btn" onclick="switchTab('r3')">Rodada 3 (24 Jogos)</button>
         <button class="tab-btn" onclick="switchTab('m16')">16-avos</button>
-        <button class="tab-btn" onclick="switchTab('moitavas')"style="background-color: #28a745; color: white";>Oitavas</button>
-        <button class="tab-btn" onclick="switchTab('mquartas')">Quartas</button>
+        <button class="tab-btn" onclick="switchTab('moitavas')">Oitavas</button>
+        <button class="tab-btn" onclick="switchTab('mquartas')"style="background-color: #28a745; color: white";>Quartas</button>
         <button class="tab-btn" onclick="switchTab('mfinal')">Semi e Final</button>
     </div>
 
@@ -572,13 +572,37 @@
 		</div>
 
             <div id="mquartas" class="day-content">
-                <div class="match-card" data-match-id="mqua_1">
-                    <div class="match-info"><span>Quartas de Final</span><span>Jogo 97 (Boston)</span></div>
-                    <div class="team"><input type="text" placeholder="Vencedor J89" data-custom-team="true"></div>
-                    <div class="score-inputs"><input type="number" class="score-input" min="0"><span class="vs">X</span><input type="number" class="score-input-B" min="0"></div>
-                    <div class="team"><input type="text" placeholder="Vencedor J90" data-custom-team-B="true"></div>
-                </div>
-            </div>
+                <div class="date-divider">Quinta, 09 de Julho</div>
+					<div class="match-card" data-match-id="quart_1">
+  					<div class="match-info"><span>17h00 — Quartas</span><span>NRG Stadium (Houston)</span></div>
+   					<div class="team left-align">França</div>
+    				<div class="score-inputs"><input type="number" class="score-input" data-teamA="França" data-teamB="Marrocos" min="0"><span class="vs">X</span><input type="number" class="score-input-B" min="0"></div>
+  					<div class="team right-align">Marrocos</div>
+				</div>
+
+			<div class="match-card" data-match-id="quart_2">
+				<div class="date-divider">Sexta, 10 de Julho</div>
+    			<div class="match-info"><span>16h00 — Quartas</span><span>Lincoln Financial Field (Filadélfia)</span></div>
+   				<div class="team left-align">Espanha</div>
+   				<div class="score-inputs"><input type="number" class="score-input" data-teamA="Espanha" data-teamB="Bélgica" min="0"><span class="vs">X</span><input type="number" class="score-input-B" min="0"></div>
+   				<div class="team right-align">Bélgica</div>
+			</div>
+
+			<div class="date-divider">Sábado, 11 de Julho</div>
+				<div class="match-card" data-match-id="quart_3">
+    			<div class="match-info"><span>18h00 — Quartas</span><span>MetLife Stadium (East Rutherford)</span></div>
+   				<div class="team left-align">Noruega</div>
+   				<div class="score-inputs"><input type="number" class="score-input" data-teamA="Noruega" data-teamB="Inglaterra" min="0"><span class="vs">X</span><input type="number" class="score-input-B" min="0"></div>
+   				<div class="team right-align">Inglaterra</div>
+			</div>
+
+			<div class="match-card" data-match-id="quart_4">
+  			  <div class="match-info"><span>22h00 — Quartas</span><span>Estádio da Cidade do México</span></div>
+  			  <div class="team left-align">Argentina</div>
+  			  <div class="score-inputs">
+    		  <input type="number" class="score-input" data-teamA="Argentina" data-teamB="Suíça" min="0"><span class="vs">X</span><input type="number" class="score-input-B" min="0"></div>
+   			 <div class="team right-align">Suíça</div>
+			</div>
 
             <div id="mfinal" class="day-content">
                 <div class="match-card" data-match-id="mfin_1">
